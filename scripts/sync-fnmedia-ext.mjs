@@ -2,14 +2,15 @@
 /**
  * 跟随 yujian0815/fnmedia-ext 的最新 Release，更新 fnpack.json。
  *
- * 该上游只发布 FPK；脚本读取公开精简版（不带 -full 后缀），
+ * 该上游同时发布完整版与公开精简版；脚本默认读取完整版（-full），
  * 从包内 manifest 与 config/privilege 读取安装元数据。
  *
  * 用法：
  *   node scripts/sync-fnmedia-ext.mjs
+ *   node scripts/sync-fnmedia-ext.mjs --slim
  *   node scripts/sync-fnmedia-ext.mjs --dry-run
  *   node scripts/sync-fnmedia-ext.mjs --tag v0.2.0
- *   node scripts/sync-fnmedia-ext.mjs --fpk ../.tmp/fnmedia-ext-0.2.0.fpk
+ *   node scripts/sync-fnmedia-ext.mjs --fpk ../.tmp/fnmedia-ext-0.2.0-full.fpk
  *   node scripts/sync-fnmedia-ext.mjs --proxy https://gh-proxy.com/
  *
  * 环境变量：
@@ -35,6 +36,7 @@ const VERSION_RE = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 const argv = process.argv.slice(2);
 const dryRun = argv.includes('--dry-run');
 const force = argv.includes('--force');
+const slim = argv.includes('--slim');
 const tagArg = optionValue('--tag');
 const fpkArg = optionValue('--fpk');
 const proxyArg = optionValue('--proxy');
@@ -238,13 +240,17 @@ async function main() {
       throw new Error(`无法识别的版本号：${release.tag_name}`);
     }
 
-    const expectedName = `fnmedia-ext-${version}.fpk`;
+    const expectedName = slim
+      ? `fnmedia-ext-${version}.fpk`
+      : `fnmedia-ext-${version}-full.fpk`;
     const asset = release.assets.find((item) => item.name === expectedName);
     if (!asset) {
       throw new Error(
-        `Release ${release.tag_name} 中找不到公开精简版 ${expectedName}`,
+        `Release ${release.tag_name} 中找不到 ${expectedName}` +
+          (slim ? '' : '；如要公开精简版请加 --slim'),
       );
     }
+    console.log(`使用${slim ? '公开精简版' : '完整版'}：${asset.name}`);
 
     let fpkPath = fpkArg ? path.resolve(fpkArg) : '';
     if (fpkPath) {

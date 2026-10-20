@@ -122,9 +122,9 @@
           "os_min_version": "1.2.0",
           "packages": {
             "all": {
-              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v0.2.0/fnmedia-ext-0.2.0.fpk",
-              "sha256": "44e45c28c20f8b93fb169abd978cf533b62a44071fc50737a3ab54e38779ed9d",
-              "size": 821498
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v0.2.0/fnmedia-ext-0.2.0-full.fpk",
+              "sha256": "8bded4b04607987925468f1a9057fd5dd1f88fee4fa1828414e6431f390f1db4",
+              "size": 7397068
             }
           }
         }
