@@ -151,7 +151,7 @@ node scripts/sync-disklens.mjs --tag v0.3.3
 node scripts/sync-disklens.mjs --force    # 允许覆盖已存在的同版本记录
 ```
 
-已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发；工作流会在提交前下载两个安装包并核对 `sha256` 与 `size`。
+已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发；工作流会在提交前下载两个安装包并核对 `sha256` 与 `size`。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync DiskLens release` 即可。
 
 ## 新增应用
 
