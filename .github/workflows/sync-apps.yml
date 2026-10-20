@@ -1,12 +1,16 @@
-name: Sync DiskLens release
+name: Sync app sources
 
 on:
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
     inputs:
-      tag:
-        description: '指定上游 tag（留空表示最新 Release）'
+      disklens_tag:
+        description: 'DiskLens 上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
+      quark_tag:
+        description: 'fnOS-quark 上游 tag（留空表示最新 Release）'
         required: false
         type: string
 
@@ -14,12 +18,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-disklens
+  group: sync-app-sources
   cancel-in-progress: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -29,15 +34,26 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Sync metadata
+      - name: Sync DiskLens metadata
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_TAG: ${{ inputs.disklens_tag }}
         run: |
           if [ -n "$INPUT_TAG" ]; then
             node scripts/sync-disklens.mjs --tag "$INPUT_TAG"
           else
             node scripts/sync-disklens.mjs
+          fi
+
+      - name: Sync fnOS-quark metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.quark_tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-fnos-quark.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-fnos-quark.mjs
           fi
 
       - name: Validate source and downloads
@@ -52,5 +68,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add fnpack.json
-          git commit -m "chore: sync DiskLens release metadata"
+          git commit -m "chore: sync app release metadata"
           git push

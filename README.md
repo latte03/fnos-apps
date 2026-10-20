@@ -16,8 +16,11 @@
 | 应用 | appname | 架构 | 版本 | 上游 |
 | --- | --- | --- | --- | --- |
 | 磁盘瞭望 DiskLens | `DiskLens` | x86 / arm | 0.3.3 | [JoySec123/DiskLens](https://github.com/JoySec123/DiskLens) |
+| 飞牛夸克下载器 | `fnos-quark` | x86 / arm | 0.7.12 | [ElyDemiurge/fnOS-quark](https://github.com/ElyDemiurge/fnOS-quark) |
 
-DiskLens 的安装包直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
+两个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
+
+`fnOS-quark` 使用专有许可，明确禁止复制、镜像或再发布软件本体，因此本仓库不复制它的 FPK、官方图标或截图：安装包只引用官方 Release，预览图直接链接上游，应用图标使用本源自制的通用云下载占位图。
 
 ## 源格式速查（V2）
 
@@ -124,34 +127,41 @@ DiskLens 的安装包直接引用上游 GitHub Release，并用 `sha256` 与 `si
 .
 ├─ fnpack.json                 # FnDepot V2 源清单
 ├─ apps/
-│  └─ DiskLens/
-│     ├─ icon.png              # 256 × 256 PNG 图标
+│  ├─ DiskLens/
+│  │  ├─ icon.png              # 256 × 256 PNG 图标
+│  │  └─ README.md             # 详情页说明
+│  └─ fnos-quark/
+│     ├─ icon.png              # 本源自制的通用占位图标
 │     └─ README.md             # 详情页说明
 ├─ scripts/
-│  ├─ sync-disklens.mjs        # 跟随上游 Release 更新清单
+│  ├─ sync-disklens.mjs        # 跟随 DiskLens Release 更新清单
+│  ├─ sync-fnos-quark.mjs      # 跟随 fnOS-quark Release 更新清单
 │  └─ validate.mjs             # 按 V2 规则校验
 └─ .github/workflows/
-   ├─ sync-disklens.yml        # 每日检查上游新版本
+   ├─ sync-apps.yml            # 每日检查两个上游的新版本
    └─ validate.yml             # push / PR 时校验清单
 ```
 
 ## 自动同步
 
-`scripts/sync-disklens.mjs` 会读取 DiskLens 的最新 Release，完成以下工作：
+两个同步脚本分别跟随各自的上游 Release：
 
-1. 找到 `DiskLens-<version>-amd64.fpk` 与 `DiskLens-<version>-arm64.fpk`。
-2. 读取 GitHub 提供的 `sha256` 摘要，缺失时下载文件自行计算。
-3. 读取对应 tag 的 `fnos/manifest`，核对 `appname`、`version`、`display_name`、`desc`、`changelog`。
-4. 把新版本写入 `fnpack.json`，保留已有版本，按发布时间倒序排列。
+- `sync-disklens.mjs` 找到 `DiskLens-<version>-amd64.fpk` 与 `-arm64.fpk`，读取仓库内 `fnos/manifest` 核对 `appname`、版本、名称、简介和 changelog。
+- `sync-fnos-quark.mjs` 找到 `fnos-quark-<version>-x86_64.fpk` 与 `-arm64.fpk`。上游只发布 FPK，脚本会下载 x86_64 包，从包内 `manifest` 读取 `appname`、`application_version`、`display_name`、`desc`、`service_port`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
+
+两者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。
 
 ```sh
-node scripts/sync-disklens.mjs            # 同步最新 Release
-node scripts/sync-disklens.mjs --dry-run  # 只打印结果，不写文件
-node scripts/sync-disklens.mjs --tag v0.3.3
-node scripts/sync-disklens.mjs --force    # 允许覆盖已存在的同版本记录
+node scripts/sync-disklens.mjs
+node scripts/sync-fnos-quark.mjs
+node scripts/sync-fnos-quark.mjs --dry-run
+node scripts/sync-fnos-quark.mjs --tag v0.7.12
+node scripts/sync-fnos-quark.mjs --fpk /path/to/fnos-quark-0.7.12-x86_64.fpk
+node scripts/sync-fnos-quark.mjs --proxy https://gh-proxy.com/
+node scripts/sync-fnos-quark.mjs --force
 ```
 
-已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发；工作流会在提交前下载两个安装包并核对 `sha256` 与 `size`。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync DiskLens release` 即可。
+已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发，并可用 `disklens_tag` / `quark_tag` 指定上游版本；工作流会在提交前下载全部安装包并核对 `sha256` 与 `size`。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync app sources` 即可。
 
 ## 新增应用
 
@@ -173,6 +183,7 @@ git diff --check
 
 ## 说明
 
-- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 以 MIT 许可证发布。
-- 安装包引用上游 Release 地址。如果上游删除或替换了资产，对应版本会校验失败；此时请在上游恢复资产，或改为把 FPK 镜像到本仓库。
+- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 以 MIT 许可证发布，fnOS-quark 为专有软件，仅允许个人使用作者发布的未修改 FPK。
+- 安装包引用上游 Release 地址。如果上游删除或替换了资产，对应版本会校验失败；DiskLens 在许可证允许时可以镜像，fnOS-quark 需要等待上游恢复或联系作者。
+- fnOS-quark 的预览图直接链接上游仓库，应用图标是本源自制的通用占位图，不是上游官方素材。
 - 源名称、简介与字段规则可能随 FnDepot 更新；升级客户端后建议重新检查上游 README。
