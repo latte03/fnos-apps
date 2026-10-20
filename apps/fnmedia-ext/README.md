@@ -32,14 +32,14 @@
 
 本扩展的安装包不内置任何资源站点、订阅地址、爬虫脚本或账号凭证，在线内容需要用户在管理页自行添加并核实来源与授权。
 
-## 关于 full 版本
+## 精简版与完整版
 
 上游 Release 同时提供两个包：
 
-- `fnmedia-ext-0.2.0.fpk`：公开精简版，约 0.8 MB；本源使用这个包。
-- `fnmedia-ext-0.2.0-full.fpk`：完整版，约 7.4 MB，额外包含 TVBox type=3 爬虫运行时。
+- `fnmedia-ext-0.2.0-full.fpk`：完整版，约 7.4 MB，额外包含 TVBox type=3 爬虫运行时；本源默认使用这个包。
+- `fnmedia-ext-0.2.0.fpk`：公开精简版，约 0.8 MB；需要更小的安装包时从 [上游 Release](https://github.com/yujian0815/fnmedia-ext/releases/tag/v0.2.0) 下载。
 
-需要使用完整版时，请直接到 [上游 Release](https://github.com/yujian0815/fnmedia-ext/releases/tag/v0.2.0) 下载。两个版本都不内置第三方源或凭证，完整版的执行组件需要用户自行准备。
+两个版本都不内置第三方源或凭证，完整版的执行组件需要用户自行准备。
 
 ## 上游资料
 

@@ -21,7 +21,7 @@
 
 三个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
 
-`fnmedia-ext` 是 MIT、纯 Python 的 `all` 架构应用，本源使用公开精简版；含 TVBox 运行时的 `-full` 版本在上游 Release 单独提供，需要在应用详情页跳转下载。
+`fnmedia-ext` 是 MIT、纯 Python 的 `all` 架构应用，本源默认使用完整版（含 TVBox 运行时）；0.8 MB 的公开精简版在应用详情页给出直达链接。
 
 `fnOS-quark` 使用专有许可，明确禁止复制、镜像或再发布软件本体，因此本仓库不复制它的 FPK、官方图标或截图：安装包只引用官方 Release，预览图直接链接上游，应用图标使用本源自制的通用云下载占位图。
 
@@ -155,7 +155,7 @@
 
 - `sync-disklens.mjs` 找到 `DiskLens-<version>-amd64.fpk` 与 `-arm64.fpk`，读取仓库内 `fnos/manifest` 核对 `appname`、版本、名称、简介和 changelog。
 - `sync-fnos-quark.mjs` 找到 `fnos-quark-<version>-x86_64.fpk` 与 `-arm64.fpk`。上游只发布 FPK，脚本会下载 x86_64 包，从包内 `manifest` 读取 `appname`、`application_version`、`display_name`、`desc`、`service_port`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
-- `sync-fnmedia-ext.mjs` 找到公开精简版 `fnmedia-ext-<version>.fpk`（不会选 `-full.fpk`），从包内 `manifest` 读取 `appname`、`version`、`platform`、`display_name`、`desc`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
+- `sync-fnmedia-ext.mjs` 默认找到完整版 `fnmedia-ext-<version>-full.fpk`；加 `--slim` 可切到公开精简版 `fnmedia-ext-<version>.fpk`。它从包内 `manifest` 读取 `appname`、`version`、`platform`、`display_name`、`desc`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
 
 三者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。
 
@@ -163,9 +163,10 @@
 node scripts/sync-disklens.mjs
 node scripts/sync-fnos-quark.mjs
 node scripts/sync-fnmedia-ext.mjs
+node scripts/sync-fnmedia-ext.mjs --slim
 node scripts/sync-fnmedia-ext.mjs --dry-run
 node scripts/sync-fnmedia-ext.mjs --tag v0.2.0
-node scripts/sync-fnmedia-ext.mjs --fpk /path/to/fnmedia-ext-0.2.0.fpk
+node scripts/sync-fnmedia-ext.mjs --fpk /path/to/fnmedia-ext-0.2.0-full.fpk
 node scripts/sync-fnmedia-ext.mjs --proxy https://gh-proxy.com/
 node scripts/sync-fnmedia-ext.mjs --force
 ```
