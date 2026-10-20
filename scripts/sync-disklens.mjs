@@ -161,6 +161,29 @@ function sortReleases(releases) {
   return Object.fromEntries(entries);
 }
 
+async function fetchUpstreamManifest(tag) {
+  const rawUrl =
+    `https://raw.githubusercontent.com/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/` +
+    `${encodeURIComponent(tag)}/fnos/manifest`;
+  console.log(`读取上游 manifest：${rawUrl}`);
+  try {
+    return await fetchText(rawUrl, {
+      'User-Agent': 'latte03-fnos-apps-sync',
+    });
+  } catch (error) {
+    console.warn(`raw 读取失败（${error.message}），改用 GitHub API`);
+  }
+
+  const apiUrl =
+    `https://api.github.com/repos/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/contents/` +
+    `fnos/manifest?ref=${encodeURIComponent(tag)}`;
+  const data = await fetchJson(apiUrl);
+  if (!data || typeof data.content !== 'string') {
+    throw new Error('GitHub API 未返回 manifest 内容');
+  }
+  return Buffer.from(data.content, data.encoding || 'base64').toString('utf8');
+}
+
 async function loadRelease() {
   if (tagArg) {
     const url =
@@ -218,13 +241,9 @@ async function main() {
     size: armAsset.size,
   };
 
-  const manifestUrl =
-    `https://raw.githubusercontent.com/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/` +
-    `${encodeURIComponent(release.tag_name)}/fnos/manifest`;
-  console.log(`读取上游 manifest：${manifestUrl}`);
-  const manifest = parseManifest(await fetchText(manifestUrl, {
-    'User-Agent': 'latte03-fnos-apps-sync',
-  }));
+  const manifest = parseManifest(
+    await fetchUpstreamManifest(release.tag_name),
+  );
 
   if (manifest.appname !== APP_KEY) {
     throw new Error(`manifest appname 为 ${manifest.appname}，预期 ${APP_KEY}`);
