@@ -17,6 +17,10 @@ on:
         description: 'fnmedia-ext 上游 tag（留空表示最新 Release）'
         required: false
         type: string
+      douyin_tag:
+        description: 'DouyinDL 上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -69,6 +73,17 @@ jobs:
             node scripts/sync-fnmedia-ext.mjs --tag "$INPUT_TAG"
           else
             node scripts/sync-fnmedia-ext.mjs
+          fi
+
+      - name: Sync DouyinDL metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.douyin_tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-douyin-dl.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-douyin-dl.mjs
           fi
 
       - name: Validate source and downloads

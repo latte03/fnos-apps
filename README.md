@@ -18,12 +18,15 @@
 | 磁盘瞭望 DiskLens | `DiskLens` | x86 / arm | 0.3.3 | [JoySec123/DiskLens](https://github.com/JoySec123/DiskLens) |
 | 飞牛夸克下载器 | `fnos-quark` | x86 / arm | 0.7.12 | [ElyDemiurge/fnOS-quark](https://github.com/ElyDemiurge/fnOS-quark) |
 | 飞牛影视在线扩展 | `fnmedia-ext` | all | 0.2.0 | [yujian0815/fnmedia-ext](https://github.com/yujian0815/fnmedia-ext) |
+| 抖音下载 | `DouyinDL` | all | 1.0.5 | [Zyc009234/fnos-douyin-dl](https://github.com/Zyc009234/fnos-douyin-dl) |
 
-三个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
+四个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
 
 `fnmedia-ext` 是 MIT、纯 Python 的 `all` 架构应用，本源默认使用完整版（含 TVBox 运行时）；0.8 MB 的公开精简版在应用详情页给出直达链接。
 
 `fnOS-quark` 使用专有许可，明确禁止复制、镜像或再发布软件本体，因此本仓库不复制它的 FPK、官方图标或截图：安装包只引用官方 Release，预览图直接链接上游，应用图标使用本源自制的通用云下载占位图。
+
+`DouyinDL` 未提供开源许可证，默认保留所有权利；本源同样不复制它的图标或素材，图标使用自制的通用视频下载占位图。它依赖 `nodejs_v22`，分享链接下载还需要 NAS 安装 Chromium，服务端口为 8866。
 
 ## 源格式速查（V2）
 
@@ -136,28 +139,33 @@
 │  ├─ fnos-quark/
 │  │  ├─ icon.png              # 本源自制的通用占位图标
 │  │  └─ README.md             # 详情页说明
-│  └─ fnmedia-ext/
-│     ├─ icon.png              # 上游 MIT 图标
+│  ├─ fnmedia-ext/
+│  │  ├─ icon.png              # 上游 MIT 图标
+│  │  └─ README.md             # 详情页说明
+│  └─ DouyinDL/
+│     ├─ icon.png              # 本源自制的通用占位图标
 │     └─ README.md             # 详情页说明
 ├─ scripts/
 │  ├─ sync-disklens.mjs        # 跟随 DiskLens Release 更新清单
 │  ├─ sync-fnos-quark.mjs      # 跟随 fnOS-quark Release 更新清单
 │  ├─ sync-fnmedia-ext.mjs     # 跟随 fnmedia-ext Release 更新清单
+│  ├─ sync-douyin-dl.mjs       # 跟随 DouyinDL Release 更新清单
 │  └─ validate.mjs             # 按 V2 规则校验
 └─ .github/workflows/
-   ├─ sync-apps.yml            # 每日检查三个上游的新版本
+   ├─ sync-apps.yml            # 每日检查四个上游的新版本
    └─ validate.yml             # push / PR 时校验清单
 ```
 
 ## 自动同步
 
-三个同步脚本分别跟随各自的上游 Release：
+四个同步脚本分别跟随各自的上游 Release：
 
 - `sync-disklens.mjs` 找到 `DiskLens-<version>-amd64.fpk` 与 `-arm64.fpk`，读取仓库内 `fnos/manifest` 核对 `appname`、版本、名称、简介和 changelog。
 - `sync-fnos-quark.mjs` 找到 `fnos-quark-<version>-x86_64.fpk` 与 `-arm64.fpk`。上游只发布 FPK，脚本会下载 x86_64 包，从包内 `manifest` 读取 `appname`、`application_version`、`display_name`、`desc`、`service_port`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
 - `sync-fnmedia-ext.mjs` 默认找到完整版 `fnmedia-ext-<version>-full.fpk`；加 `--slim` 可切到公开精简版 `fnmedia-ext-<version>.fpk`。它从包内 `manifest` 读取 `appname`、`version`、`platform`、`display_name`、`desc`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
+- `sync-douyin-dl.mjs` 读取固定文件名 `DouyinDL.fpk`，从包内 `manifest` 读取 `appname`、`version`、`display_name`、`desc`、`service_port`、`os_min_version`、`changelog`，并从 `config/privilege` 读取 `run_as`。
 
-三者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。
+四者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。
 
 ```sh
 node scripts/sync-disklens.mjs
@@ -169,9 +177,15 @@ node scripts/sync-fnmedia-ext.mjs --tag v0.2.0
 node scripts/sync-fnmedia-ext.mjs --fpk /path/to/fnmedia-ext-0.2.0-full.fpk
 node scripts/sync-fnmedia-ext.mjs --proxy https://gh-proxy.com/
 node scripts/sync-fnmedia-ext.mjs --force
+node scripts/sync-douyin-dl.mjs
+node scripts/sync-douyin-dl.mjs --dry-run
+node scripts/sync-douyin-dl.mjs --tag v1.0.5
+node scripts/sync-douyin-dl.mjs --fpk /path/to/DouyinDL.fpk
+node scripts/sync-douyin-dl.mjs --proxy https://gh-proxy.com/
+node scripts/sync-douyin-dl.mjs --force
 ```
 
-已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发，并可用 `disklens_tag` / `quark_tag` / `fnmedia_tag` 指定上游版本；工作流会在提交前下载全部安装包并核对 `sha256` 与 `size`。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync app sources` 即可。
+已存在的版本如果摘要不一致，脚本默认报错退出，不会静默替换。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发，并可用 `disklens_tag` / `quark_tag` / `fnmedia_tag` / `douyin_tag` 指定上游版本；工作流会在提交前下载全部安装包并核对 `sha256` 与 `size`。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync app sources` 即可。
 
 ## 新增应用
 
@@ -193,8 +207,8 @@ git diff --check
 
 ## 说明
 
-- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 与 fnmedia-ext 以 MIT 许可证发布，fnOS-quark 为专有软件，仅允许个人使用作者发布的未修改 FPK。
-- 安装包引用上游 Release 地址。如果上游删除或替换了资产，对应版本会校验失败；DiskLens 和 fnmedia-ext 在许可证允许时可以镜像，fnOS-quark 需要等待上游恢复或联系作者。
-- fnmedia-ext 依赖官方「影视」（`trim.media`）保持安装并启用；FPK manifest 里的 `install_dep_apps` 会交给 fnOS 处理，FnDepot 只负责下载安装包。
-- fnOS-quark 的预览图直接链接上游仓库，应用图标是本源自制的通用占位图，不是上游官方素材。
+- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 与 fnmedia-ext 以 MIT 许可证发布，fnOS-quark 为专有软件，DouyinDL 未提供 LICENSE、默认保留所有权利。
+- 安装包引用上游 Release 地址。如果上游删除或替换了资产，对应版本会校验失败；DiskLens 和 fnmedia-ext 在许可证允许时可以镜像，fnOS-quark 和 DouyinDL 需要等待上游恢复或联系作者。
+- fnmedia-ext 依赖官方「影视」（`trim.media`）保持安装并启用；DouyinDL 依赖 `nodejs_v22`（FPK manifest 已声明），分享链接下载还需要 NAS 安装 Chromium。这些依赖由 fnOS 或用户环境处理，FnDepot 只负责下载安装包。
+- fnOS-quark 和 DouyinDL 的预览图直接链接上游（如有），应用图标是本源自制的通用占位图，不是上游官方素材。
 - 源名称、简介与字段规则可能随 FnDepot 更新；升级客户端后建议重新检查上游 README。
