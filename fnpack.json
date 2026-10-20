@@ -129,6 +129,41 @@
           }
         }
       }
+    },
+    "DouyinDL": {
+      "display_name": "抖音下载",
+      "desc": "配合浏览器书签小工具，在抖音网页版点一下即可把当前视频（无水印）下载到 NAS 共享目录。",
+      "platform": [
+        "all"
+      ],
+      "categories": [
+        "影音娱乐"
+      ],
+      "icon_url": "./apps/DouyinDL/icon.png",
+      "readme_url": "./apps/DouyinDL/README.md",
+      "bug_report_url": "https://github.com/Zyc009234/fnos-douyin-dl/issues",
+      "maintainer": "DouyinDL",
+      "maintainer_url": "https://github.com/Zyc009234/fnos-douyin-dl",
+      "distributor": "latte03",
+      "distributor_url": "https://github.com/latte03",
+      "run_as": "package",
+      "install_type": "",
+      "is_docker": false,
+      "service_port": "8866",
+      "releases": {
+        "1.0.5": {
+          "changelog": "新增分享链接下载：iPhone 在抖音里分享给快捷指令「存到NAS」即可下载，管理页可直接粘贴链接下载（需要 NAS 上安装 Chromium）；保存位置可以自定义。",
+          "updated_at": "2026-10-20T13:56:06Z",
+          "os_min_version": "1.0.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/Zyc009234/fnos-douyin-dl/releases/download/v1.0.5/DouyinDL.fpk",
+              "sha256": "d05382af50dd6dfa69982fb84a5c97089ffd9408fe91e063ecc7d42dfb3c06f6",
+              "size": 42772
+            }
+          }
+        }
+      }
     }
   }
 }
