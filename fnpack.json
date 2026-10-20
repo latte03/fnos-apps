@@ -1,0 +1,51 @@
+{
+  "schema_version": "2",
+  "source_info": {
+    "name": "Agan 的飞牛应用源",
+    "author": "latte03",
+    "homepage": "https://github.com/latte03/fnos-apps",
+    "description": "FnDepot 外部源，收录经过验证的飞牛应用。"
+  },
+  "apps": {
+    "DiskLens": {
+      "display_name": "磁盘瞭望",
+      "desc": "只读分析目录与重复文件，记录空间账单，定时巡检并提醒空间变化。",
+      "platform": [
+        "x86",
+        "arm"
+      ],
+      "categories": [
+        "系统工具"
+      ],
+      "icon_url": "./apps/DiskLens/icon.png",
+      "readme_url": "./apps/DiskLens/README.md",
+      "bug_report_url": "https://github.com/JoySec123/DiskLens/issues",
+      "maintainer": "DiskLens Team",
+      "maintainer_url": "https://github.com/JoySec123/DiskLens",
+      "distributor": "latte03",
+      "distributor_url": "https://github.com/latte03",
+      "run_as": "package",
+      "install_type": "",
+      "is_docker": false,
+      "service_port": "",
+      "releases": {
+        "0.3.3": {
+          "changelog": "新增长期空间账单、低干扰定时扫描、增长与容量提醒，支持扫描速率及超时设置；嵌入飞牛窗口时不再重复显示应用标题。",
+          "updated_at": "2026-10-20T05:24:31Z",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/JoySec123/DiskLens/releases/download/v0.3.3/DiskLens-0.3.3-amd64.fpk",
+              "sha256": "519851f291257d22b452ae05475903d14bd585939a013be1507adc3783bc99bf",
+              "size": 4883604
+            },
+            "arm": {
+              "download_url": "https://github.com/JoySec123/DiskLens/releases/download/v0.3.3/DiskLens-0.3.3-arm64.fpk",
+              "sha256": "00d1195f4013f670dc7211501bbf9deed7a63436d6a83e90f03584ef47170264",
+              "size": 4525153
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+name: Sync DiskLens release
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '指定上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-disklens
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sync metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-disklens.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-disklens.mjs
+          fi
+
+      - name: Validate source and downloads
+        run: node scripts/validate.mjs --remote
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- fnpack.json; then
+            echo "fnpack.json 无变化"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fnpack.json
+          git commit -m "chore: sync DiskLens release metadata"
+          git push
