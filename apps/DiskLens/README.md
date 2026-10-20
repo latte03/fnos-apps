@@ -1,7 +1,9 @@
 # DiskLens / 磁盘瞭望
 
-> 上游项目：[JoySec123/DiskLens](https://github.com/JoySec123/DiskLens)  
-> 当前版本：`0.3.3`（开源测试版）  
+> 上游项目：[JoySec123/DiskLens](https://github.com/JoySec123/DiskLens)
+>
+> 当前版本：`0.3.3`（开源测试版）
+>
 > 许可证：MIT（第三方组件遵循各自许可证）
 
 DiskLens 是面向 fnOS 管理员的本地只读磁盘空间分析器。它把目录扫描、历史比较、空间账单、增长提醒和重复文件确认放在同一个界面中，帮助定位“空间被什么占用”和“哪个目录持续增长”。
