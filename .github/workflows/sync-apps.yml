@@ -13,6 +13,10 @@ on:
         description: 'fnOS-quark 上游 tag（留空表示最新 Release）'
         required: false
         type: string
+      fnmedia_tag:
+        description: 'fnmedia-ext 上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -54,6 +58,17 @@ jobs:
             node scripts/sync-fnos-quark.mjs --tag "$INPUT_TAG"
           else
             node scripts/sync-fnos-quark.mjs
+          fi
+
+      - name: Sync fnmedia-ext metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.fnmedia_tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-fnmedia-ext.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-fnmedia-ext.mjs
           fi
 
       - name: Validate source and downloads
