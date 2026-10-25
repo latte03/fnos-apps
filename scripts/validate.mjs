@@ -4,7 +4,11 @@
  *
  * 用法：
  *   node scripts/validate.mjs
- *   node scripts/validate.mjs --remote   # 额外下载安装包核对 sha256 / size
+ *   node scripts/validate.mjs --remote   # 核对安装包 sha256 / size 与上游一致
+ *
+ * --remote 优先用 GitHub Release API 的 digest 字段核对（不下载安装包，
+ * 秒级完成）；非 GitHub 下载地址或 API 未提供 digest 时回退为完整下载核对。
+ * 提供 GITHUB_TOKEN / GH_TOKEN 环境变量可提高 API 限额。
  */
 
 import { createHash } from 'node:crypto';
@@ -180,7 +184,79 @@ function checkCategories(value) {
   return value;
 }
 
+const releaseCache = new Map();
+
+/**
+ * 从 GitHub Release 下载地址提取 owner/repo/tag/filename；
+ * 非 GitHub 地址返回 null（回退完整下载核对）。
+ */
+function githubAssetInfo(downloadUrl) {
+  const match = String(downloadUrl).match(
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/([^?#]+)/i,
+  );
+  if (!match) return null;
+  return {
+    owner: match[1],
+    repo: match[2],
+    tag: match[3],
+    filename: decodeURIComponent(match[4]),
+  };
+}
+
+async function fetchGithubRelease(owner, repo, tag) {
+  const key = `${owner}/${repo}@${tag}`;
+  if (releaseCache.has(key)) return releaseCache.get(key);
+  const url =
+    `https://api.github.com/repos/${owner}/${repo}/releases/tags/` +
+    encodeURIComponent(tag);
+  const headers = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'latte03-fnos-apps-validator',
+  };
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(url, { headers, redirect: 'follow' });
+  if (response.status === 404) {
+    releaseCache.set(key, undefined);
+    return undefined;
+  }
+  if (!response.ok) {
+    throw new Error(`GitHub API HTTP ${response.status}: ${url}`);
+  }
+  const release = await response.json();
+  releaseCache.set(key, release);
+  return release;
+}
+
 async function verifyRemotePackage(downloadUrl, sha256, size, label) {
+  const gh = githubAssetInfo(downloadUrl);
+  if (gh) {
+    const release = await fetchGithubRelease(gh.owner, gh.repo, gh.tag);
+    if (release === undefined) {
+      error(`${label} 上游 Release 不存在：${gh.tag}`);
+      return;
+    }
+    const asset = (release.assets || []).find((item) => item.name === gh.filename);
+    if (!asset) {
+      error(`${label} 上游资产不存在：${gh.filename}`);
+      return;
+    }
+    const digest = typeof asset.digest === 'string' ? asset.digest : '';
+    const match = digest.match(/^sha256:([0-9a-f]{64})$/i);
+    if (match) {
+      console.log(`核对 digest ${label}：${gh.tag}/${gh.filename}`);
+      if (asset.size !== size) {
+        error(`${label} 大小不一致：清单 ${size} B，上游 ${asset.size} B`);
+      }
+      const actual = match[1].toLowerCase();
+      if (actual !== sha256.toLowerCase()) {
+        error(`${label} sha256 不一致：清单 ${sha256}，上游 ${actual}`);
+      }
+      return;
+    }
+    // API 未提供 digest，回退完整下载核对
+  }
+
   console.log(`下载校验 ${label}：${downloadUrl}`);
   const response = await fetch(downloadUrl, {
     headers: {
@@ -445,7 +521,7 @@ async function main() {
   }
   console.log(
     `校验通过：${appEntries.length} 个应用，${releaseCount} 个版本` +
-      (remote ? '（已下载核对安装包）' : ''),
+      (remote ? '（已核对上游安装包）' : ''),
   );
 }
 

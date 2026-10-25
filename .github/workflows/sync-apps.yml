@@ -87,6 +87,8 @@ jobs:
           fi
 
       - name: Validate source and downloads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/validate.mjs --remote
 
       - name: Commit changes
