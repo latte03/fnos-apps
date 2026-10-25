@@ -116,6 +116,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.2.12": {
+          "changelog": "## v0.2.12 — 2026-10-25\n\n内部修复（轻量版无可见变化）。\n\n> 全功能版：修复原生「🛡加固影视」库筛选面板里看不到自定义“源 / 分类”标签的问题（飞牛筛选标签的中文名取自全局类型/地区字典，需同步注入），现在“类型”行可按各源分类、“地区”行可按源筛选。",
+          "updated_at": "2026-10-25T11:52:59Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v0.2.12/fnmedia-ext-0.2.12-full.fpk",
+              "sha256": "4474f5f8c7971ab1647bd0fa66d707f72dea56598b6ef052b40a2631e0375720",
+              "size": 6202203
+            }
+          }
+        },
         "0.2.5": {
           "changelog": "## v0.2.5 — 2026-10-24\n\n版本更新检查与一键升级。\n\n### 新增\n- 管理页「关于」新增版本更新卡片：后台定期比对 GitHub 最新 Release，发现新版本时提示并可一键下载、校验、自动安装升级；自动保留播放记录与已导入配置。\n- 下载强制校验官方 sha256，校验不符拒绝安装；仅做只读自动检查，必须在管理页手动确认才会安装。\n\n### 安装包选择\n- `fnmedia-ext-0.2.5.fpk`（约 0.8 MB）：轻量版，通用在线播放与榜单/海量分类。\n- `fnmedia-ext-0.2.5-full.fpk`（约 6 MB）：全功能版，额外支持 TVBox 订阅导入（CMS / csp 纯 dex / DexGuard 加固 / 远程 drpyS）、jar 自动下载、小雅网盘分类等；不内置任何个人源或凭证，源由使用者自行导入。",
           "updated_at": "2026-10-24T06:26:42Z",
@@ -123,8 +135,8 @@
           "packages": {
             "all": {
               "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v0.2.5/fnmedia-ext-0.2.5-full.fpk",
-              "sha256": "3a606c2104ea8b1a6a49476fc33b84293fe2a7ac46c0e1f7ec199a9c5edb8529",
-              "size": 6171570
+              "sha256": "6cee9c6126d28621dabff1b12e05c6754fa9639fa1375b98ac31f5db43906feb",
+              "size": 6183026
             }
           }
         },
