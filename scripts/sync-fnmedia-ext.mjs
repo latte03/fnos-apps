@@ -28,6 +28,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { refreshHistoricalPins, sameDownloadUrls } from './lib/upstream.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_FILE = path.join(ROOT, 'fnpack.json');
 const APP_KEY = 'fnmedia-ext';
@@ -234,56 +236,6 @@ function sortReleases(releases) {
   return Object.fromEntries(entries);
 }
 
-/**
- * 上游偶尔会在同一个 tag 下原地重传资产（fnmedia-ext 0.2.5 就被重传过），
- * 历史 pin 过期会让 validate --remote 失败、整个流水线卡住。
- * 这里逐个核对历史版本：资产变化时刷新 size / sha256（优先用 GitHub API
- * 的 digest 字段，避免重复下载）；上游已删除的版本从清单移除。
- */
-async function refreshHistoricalPins(app, currentVersion) {
-  for (const oldVersion of Object.keys(app.releases || {})) {
-    if (oldVersion === currentVersion) continue;
-    const pkg = app.releases[oldVersion]?.packages?.all;
-    if (!pkg || !/^https?:\/\//i.test(pkg.download_url || '')) continue;
-
-    const tag = `v${oldVersion}`;
-    const url =
-      `https://api.github.com/repos/${UPSTREAM_OWNER}/${UPSTREAM_REPO}/releases/tags/` +
-      encodeURIComponent(tag);
-    let release;
-    try {
-      release = await fetchJson(url);
-    } catch (err) {
-      if (/HTTP 404/.test(err.message)) {
-        delete app.releases[oldVersion];
-        console.log(`上游已删除 ${tag}，移除版本 ${oldVersion}`);
-        continue;
-      }
-      throw err;
-    }
-
-    const assetName = decodeURIComponent(pkg.download_url.split('/').pop() || '');
-    const asset = (release.assets || []).find((item) => item.name === assetName);
-    if (!asset) {
-      delete app.releases[oldVersion];
-      console.log(`上游 ${tag} 已不存在资产 ${assetName}，移除版本 ${oldVersion}`);
-      continue;
-    }
-
-    const digest = typeof asset.digest === 'string' ? asset.digest : '';
-    const match = digest.match(/^sha256:([0-9a-f]{64})$/i);
-    const shaSame = match
-      ? match[1].toLowerCase() === String(pkg.sha256 || '').toLowerCase()
-      : null;
-    // 大小一致且 sha256 一致（API 无 digest 时以大小一致为准）则无需刷新
-    if (asset.size === pkg.size && shaSame !== false) continue;
-
-    pkg.size = asset.size;
-    pkg.sha256 = match ? match[1].toLowerCase() : await sha256ForAsset(asset);
-    console.log(`上游重传了 ${assetName}，刷新 ${oldVersion} 的 size/sha256`);
-  }
-}
-
 async function main() {
   let tempDir = '';
   try {
@@ -395,15 +347,13 @@ async function main() {
 
     const existing = app.releases?.[version];
     if (existing && canonical(existing) !== canonical(nextRelease)) {
-      const sameAssetUrl =
-        existing.packages?.all?.download_url === nextRelease.packages.all.download_url;
-      if (!sameAssetUrl && !force) {
+      if (!sameDownloadUrls(existing, nextRelease) && !force) {
         throw new Error(
           `版本 ${version} 已存在且下载地址变化；确认要覆盖请加 --force`,
         );
       }
       console.log(
-        sameAssetUrl
+        sameDownloadUrls(existing, nextRelease)
           ? `上游更新了 ${version}（同一下载地址），刷新校验值与元数据`
           : `覆盖已存在版本 ${version}`,
       );
@@ -411,7 +361,12 @@ async function main() {
 
     app.releases = app.releases || {};
     app.releases[version] = nextRelease;
-    await refreshHistoricalPins(app, version);
+    await refreshHistoricalPins(app, version, {
+      owner: UPSTREAM_OWNER,
+      repo: UPSTREAM_REPO,
+      fetchJson,
+      sha256ForAsset,
+    });
     app.releases = sortReleases(app.releases);
 
     const versions = Object.keys(app.releases);

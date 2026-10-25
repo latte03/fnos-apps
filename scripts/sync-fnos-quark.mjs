@@ -5,6 +5,9 @@
  * 该上游只发布 FPK，不在仓库里提供 manifest；脚本会下载 x86_64 包，
  * 从包内读取 manifest 与 config/privilege，再写回版本和安装元数据。
  *
+ * 历史 Release 的校验值也会自动核对：上游在原 tag 重传资产时刷新
+ * size/sha256；上游删除的版本会从清单移除，保证 download_url 始终可用。
+ *
  * 用法：
  *   node scripts/sync-fnos-quark.mjs
  *   node scripts/sync-fnos-quark.mjs --dry-run
@@ -23,6 +26,8 @@ import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { refreshHistoricalPins, sameDownloadUrls } from './lib/upstream.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_FILE = path.join(ROOT, 'fnpack.json');
@@ -358,16 +363,26 @@ async function main() {
 
     const existing = app.releases?.[version];
     if (existing && canonical(existing) !== canonical(nextRelease)) {
-      if (!force) {
+      if (!sameDownloadUrls(existing, nextRelease) && !force) {
         throw new Error(
-          `版本 ${version} 已存在且内容不同；确认要覆盖请加 --force`,
+          `版本 ${version} 已存在且下载地址变化；确认要覆盖请加 --force`,
         );
       }
-      console.log(`覆盖已存在版本 ${version}`);
+      console.log(
+        sameDownloadUrls(existing, nextRelease)
+          ? `上游更新了 ${version}（同一下载地址），刷新校验值与元数据`
+          : `覆盖已存在版本 ${version}`,
+      );
     }
 
     app.releases = app.releases || {};
     app.releases[version] = nextRelease;
+    await refreshHistoricalPins(app, version, {
+      owner: UPSTREAM_OWNER,
+      repo: UPSTREAM_REPO,
+      fetchJson,
+      sha256ForAsset,
+    });
     app.releases = sortReleases(app.releases);
 
     const versions = Object.keys(app.releases);

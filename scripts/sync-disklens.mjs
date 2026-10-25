@@ -2,6 +2,9 @@
 /**
  * 跟随 JoySec123/DiskLens 的最新 Release，更新 fnpack.json。
  *
+ * 历史 Release 的校验值也会自动核对：上游在原 tag 重传资产时刷新
+ * size/sha256；上游删除的版本会从清单移除，保证 download_url 始终可用。
+ *
  * 用法：
  *   node scripts/sync-disklens.mjs
  *   node scripts/sync-disklens.mjs --dry-run
@@ -16,6 +19,8 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { refreshHistoricalPins, sameDownloadUrls } from './lib/upstream.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_FILE = path.join(ROOT, 'fnpack.json');
@@ -258,6 +263,8 @@ async function main() {
     throw new Error(`fnpack.json 中缺少 apps.${APP_KEY}`);
   }
 
+  const before = canonical(source);
+
   const nextRelease = {
     changelog: manifest.changelog || release.name || `更新至 ${version}。`,
     updated_at: release.published_at || release.created_at || new Date().toISOString(),
@@ -265,17 +272,17 @@ async function main() {
   };
 
   const existing = app.releases?.[version];
-  if (existing) {
-    if (canonical(existing) === canonical(nextRelease)) {
-      console.log(`已是最新：${APP_KEY} ${version}`);
-      return;
-    }
-    if (!force) {
+  if (existing && canonical(existing) !== canonical(nextRelease)) {
+    if (!sameDownloadUrls(existing, nextRelease) && !force) {
       throw new Error(
-        `版本 ${version} 已存在且内容不同；确认要覆盖请加 --force`,
+        `版本 ${version} 已存在且下载地址变化；确认要覆盖请加 --force`,
       );
     }
-    console.log(`覆盖已存在版本 ${version}`);
+    console.log(
+      sameDownloadUrls(existing, nextRelease)
+        ? `上游更新了 ${version}（同一下载地址），刷新校验值与元数据`
+        : `覆盖已存在版本 ${version}`,
+    );
   }
 
   if (manifest.display_name) app.display_name = manifest.display_name;
@@ -283,6 +290,12 @@ async function main() {
 
   app.releases = app.releases || {};
   app.releases[version] = nextRelease;
+  await refreshHistoricalPins(app, version, {
+    owner: UPSTREAM_OWNER,
+    repo: UPSTREAM_REPO,
+    fetchJson,
+    sha256ForAsset,
+  });
   app.releases = sortReleases(app.releases);
 
   const versions = Object.keys(app.releases);
@@ -291,6 +304,11 @@ async function main() {
       delete app.releases[oldVersion];
       console.log(`超出 ${MAX_RELEASES} 个版本上限，移除 ${oldVersion}`);
     }
+  }
+
+  if (canonical(source) === before) {
+    console.log(`已是最新：${APP_KEY} ${version}`);
+    return;
   }
 
   const output = `${JSON.stringify(source, null, 2)}\n`;

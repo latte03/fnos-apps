@@ -16,6 +16,8 @@ import { open, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { assetDigest, githubAssetInfo } from './lib/upstream.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_FILE = path.join(ROOT, 'fnpack.json');
 
@@ -186,23 +188,6 @@ function checkCategories(value) {
 
 const releaseCache = new Map();
 
-/**
- * 从 GitHub Release 下载地址提取 owner/repo/tag/filename；
- * 非 GitHub 地址返回 null（回退完整下载核对）。
- */
-function githubAssetInfo(downloadUrl) {
-  const match = String(downloadUrl).match(
-    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/([^?#]+)/i,
-  );
-  if (!match) return null;
-  return {
-    owner: match[1],
-    repo: match[2],
-    tag: match[3],
-    filename: decodeURIComponent(match[4]),
-  };
-}
-
 async function fetchGithubRelease(owner, repo, tag) {
   const key = `${owner}/${repo}@${tag}`;
   if (releaseCache.has(key)) return releaseCache.get(key);
@@ -241,16 +226,14 @@ async function verifyRemotePackage(downloadUrl, sha256, size, label) {
       error(`${label} 上游资产不存在：${gh.filename}`);
       return;
     }
-    const digest = typeof asset.digest === 'string' ? asset.digest : '';
-    const match = digest.match(/^sha256:([0-9a-f]{64})$/i);
-    if (match) {
+    const digest = assetDigest(asset);
+    if (digest) {
       console.log(`核对 digest ${label}：${gh.tag}/${gh.filename}`);
       if (asset.size !== size) {
         error(`${label} 大小不一致：清单 ${size} B，上游 ${asset.size} B`);
       }
-      const actual = match[1].toLowerCase();
-      if (actual !== sha256.toLowerCase()) {
-        error(`${label} sha256 不一致：清单 ${sha256}，上游 ${actual}`);
+      if (digest !== sha256.toLowerCase()) {
+        error(`${label} sha256 不一致：清单 ${sha256}，上游 ${digest}`);
       }
       return;
     }
