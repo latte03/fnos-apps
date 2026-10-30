@@ -236,6 +236,40 @@
           }
         }
       }
+    },
+    "rustfs-fnos": {
+      "display_name": "RustFS",
+      "desc": "<p>RustFS 是一个兼容 S3 的对象存储。装好后点桌面图标，即可在 fnOS 窗口内打开控制台。</p><p>可用作备份目标、媒体库或图床的后端，也可以给其它应用提供对象存储。</p><p>安装时只需设置管理员账号密码与端口；数据默认存在应用自己的目录里，装好后可在「应用设置」里改到你自己的存储空间。</p>",
+      "platform": [
+        "all"
+      ],
+      "categories": [
+        "系统工具"
+      ],
+      "icon_url": "./apps/rustfs-fnos/icon.png",
+      "readme_url": "./apps/rustfs-fnos/README.md",
+      "bug_report_url": "https://github.com/a10463981/rustfs-fnos/issues",
+      "maintainer": "a10463981",
+      "maintainer_url": "https://github.com/a10463981/rustfs-fnos",
+      "distributor": "latte03",
+      "distributor_url": "https://github.com/latte03",
+      "run_as": "package",
+      "install_type": "",
+      "is_docker": true,
+      "service_port": "9200",
+      "releases": {
+        "1.0.4-2": {
+          "changelog": "## RustFS for fnOS `1.0.4-2`（正式版）\n\n> 版本号约定：前三段对齐上游镜像（本版 `rustfs/rustfs:1.0.4`），`-N` 是本项目的打包修订号。\n> **本次不含镜像变更**，RustFS 本体仍是上游 1.0.4。\n\n### 本次变更：支持 ARM / 全架构\n\n- 发布包改为 **`platform=all`**：**同一个 `-all.fpk` 同时适用于 x86_64 与 aarch64 设备**（包内只有 manifest / compose / 脚本 / 图标 / 网关配置，没有架构相关二进制）。\n- **修复：`install_init` 原先硬拒非 x86 设备**（`本包仅支持 x86 设备`），ARM 上连安装都无法开始。现在按包形态判断：\n  - 在线版（无内嵌镜像）→ 接受 `amd64` / `arm64`；\n  - 其它架构（`loongarch64`、`riscv64` 等）→ **警告但继续**（`platform=all` 的语义就是「不承诺但可试」，硬拒会把将来可能能跑的设备挡在门外）；\n  - 离线版（有内嵌镜像）→ 只接受与包内镜像架构一致的设备，不匹配则明确提示该下载哪个包。\n- 离线版（把镜像打进包）**本次未启用**，代码路径已预留（`app/images/` 不存在 → 在线版自动短路）。\n\n### ⚠️ ARM 说明（请务必看）\n\n- 上游镜像 `rustfs/rustfs:1.0.4` 在 `ghcr.io` 上确有 `linux/arm64`（已实测 OCI index：amd64 + arm64 两条）；`nginx:1.27-alpine` 亦为多架构镜像。\n- 但**我们手头没有 ARM 设备，未做真机验证**。能保证的是：构建通过、脚本里没有架构硬编码。\n- 在 ARM 设备上装完后，请按下面清单自查（任一条不符请反馈）：\n\n| # | 检查 | 命令 | 期望 |\n|---|---|---|---|\n| 1 | 架构 | `uname -m` | `aarch64` |\n| 2 | docker 架构 | `docker version --format '{{.Server.Arch}}'` | `arm64` |\n| 3 | 镜像架构 | `docker image inspect docker.io/rustfs/rustfs:1.0.4 --format '{{.Os}}/{{.Architecture}}'` | `linux/arm64` |\n| 4 | 服务 | `curl -s -o /dev/null -w '%{http_code}\\n' http://127.0.0.1:9200/health/ready` | `200` |\n| 5 | 控制台 | `curl -s -o /dev/null -w '%{http_code}\\n' http://127.0.0.1:9201/app/rustfs-fnos/` | `200` |\n| 6 | 网关 | `sudo ls -l /vol1/@appcenter/rustfs-fnos/app.sock` | `srw-` 开头，属主=应用用户 |\n| 7 | 容器 | `docker ps --filter name=rustfs --format '{{.Names}}|{{.Status}}'` | `rustfs-fnos` 为 `Up (healthy)`、`rustfs-fnos-gateway` 为 `Up` |\n\n再点一次桌面图标：能在窗口内打开控制台并登录 → ARM 可用。\n\n### 安装\n\n1. 下载 `rustfs-fnos-1.0.4-2-all.fpk` 与 `SHA256SUMS`；`sha256sum -c SHA256SUMS`；\n2. 应用中心 → 手动安装 → 选择该文件；向导设置管理员账号密码、S3 API 端口、控制台端口、允许访问的来源（例如 `http://<你的NAS>:5666`）；\n3. 装完点桌面图标，在 fnOS 窗口内打开控制台。\n\n> 安装向导不再询问数据目录（首次一律用默认位置）。想改到自己的存储空间，请在 **应用设置**里按两步走：先到「访问权限」授权该目录，再到「运行设置 → 数据存放位置」改路径。\n\n### 升级说明\n\n从 `1.0.4-1` 或 `1.0.4` 升级：先卸载（数据选「保留」）再安装本版；凭据需重设；自定义数据目录里的数据不受影响。\n\n### 校验\n\n`sha256(rustfs-fnos-1.0.4-2-all.fpk) = d6d364a05203871ce7e5a0d7760c9491f4f496551127bd57d81d0bdee3781460`",
+          "updated_at": "2026-10-28T04:12:56Z",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/a10463981/rustfs-fnos/releases/download/v1.0.4-2/rustfs-fnos-1.0.4-2-all.fpk",
+              "sha256": "d6d364a05203871ce7e5a0d7760c9491f4f496551127bd57d81d0bdee3781460",
+              "size": 96133
+            }
+          }
+        }
+      }
     }
   }
 }
