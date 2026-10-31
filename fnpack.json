@@ -116,6 +116,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.2.39": {
+          "changelog": "## v0.2.39 — 2026-10-31\n\n加固影视资源更稳：修复片单显示变少、部分影片取流失败，\n更新可用源并增强超时容错，热门/片库播放保持顺畅。",
+          "updated_at": "2026-10-31T07:34:43Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v0.2.39/fnmedia-ext-0.2.39-full.fpk",
+              "sha256": "898952aa8bbc9abdca40160d3032fb919e8bc72bbfa82c6d5582cc8af5cc7b9b",
+              "size": 122614871
+            }
+          }
+        },
         "0.2.24": {
           "changelog": "## v0.2.24 — 2026-10-29\n\n内部播放能力改进（轻量版无可见变化）。\n\n> 全功能版：第三方网盘（夸克）播放改用与官方 App 客户端一致的在线播放接口取原画档，原画不再受 PC 网页接口单文件约 2GB 的大小限制（实测 6.7GB 电影可原画、任意进度拖动 206）；播放地址改为点播放时按文件实时换取，避免转存后短时效签名过期。",
           "updated_at": "2026-10-29T08:54:41Z",
