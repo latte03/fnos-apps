@@ -32,7 +32,7 @@
 
 `RustFS` 是由社区（[a10463981](https://github.com/a10463981/rustfs-fnos)）打包的 RustFS for fnOS，上游 RustFS 本体以 Apache-2.0 发布，本仓库直接使用其安装包内图标。它依赖 Docker，安装与升级时需要能访问容器镜像仓库；包内没有架构相关二进制，一个 `all` 包同时用于 x86 与 ARM（ARM 上游未做真机验证）。
 
-`deskicons`（NAS 管家）未提供开源许可证，本源不复制它的图标素材，图标使用自制的「NAS + 管理」占位图，预览图直接链接上游 `docs/` 截图。它依赖 `nodejs_v22`，没有固定 TCP 端口，并且在 FPK 里声明以 `root` 运行（管理容器、计划任务、SSH 与存储文件需要），安装前请确认接受这一点。
+`deskicons`（NAS 管家）未提供开源许可证。应用图标直接取自上游安装包（与安装后 NAS 上的 `/vol1/@appcenter/deskicons/ui/images/icon_256.png` 一致），预览图链接上游 `docs/` 截图。它依赖 `nodejs_v22`，没有固定 TCP 端口，并且在 FPK 里声明以 `root` 运行（管理容器、计划任务、SSH 与存储文件需要），安装前请确认接受这一点。
 
 ## 源格式速查（V2）
 
@@ -155,7 +155,7 @@
 │  │  ├─ icon.png              # 上游安装包内图标（Apache-2.0）
 │  │  └─ README.md             # 详情页说明
 │  └─ deskicons/
-│     ├─ icon.png              # 本源自制的通用占位图标
+│     ├─ icon.png              # 上游安装包内图标
 │     └─ README.md             # 详情页说明
 ├─ scripts/
 │  ├─ lib/upstream.mjs         # 各同步脚本共用的上游 pin 自愈逻辑
@@ -240,5 +240,5 @@ git diff --check
 - 安装包引用上游 Release 地址。上游在原 tag 重传资产时，同步脚本会自动刷新 `size`/`sha256`；上游删除某个版本时，该版本会从清单移除，保证清单里的下载地址始终可用。镜像前请先确认上游许可证是否允许（DiskLens、fnmedia-ext、RustFS 可以；fnOS-quark、DouyinDL、deskicons 需要先联系作者）。
 - fnmedia-ext 依赖官方「影视」（`trim.media`）保持安装并启用；DouyinDL 与 deskicons 依赖 `nodejs_v22`（FPK manifest 已声明），DouyinDL 的分享链接下载还需要 NAS 安装 Chromium；RustFS 依赖 Docker 与容器镜像仓库访问。这些依赖由 fnOS 或用户环境处理，FnDepot 只负责下载安装包。
 - deskicons 在 FPK 中声明以 `root` 运行，用于容器、计划任务、SSH 和存储文件等系统级操作。
-- fnOS-quark、DouyinDL 和 deskicons 的预览图直接链接上游（如有），应用图标是本源自制的通用占位图，不是上游官方素材；RustFS 的图标取自上游安装包。
+- fnOS-quark 和 DouyinDL 的预览图直接链接上游（如有），应用图标是本源自制的通用占位图，不是上游官方素材；RustFS 与 deskicons 的图标取自各自上游安装包（deskicons 与安装在 NAS 上的图标一致）。
 - 源名称、简介与字段规则可能随 FnDepot 更新；升级客户端后建议重新检查上游 README。
