@@ -323,6 +323,54 @@
           }
         }
       }
+    },
+    "deskicons": {
+      "display_name": "NAS 管家",
+      "desc": "集桌面图标、计划任务、远程连接、存储管理与网络唤醒于一体的 NAS 管理工具。支持管家菜单独立桌面入口、SSH/VNC 多标签连接、文件传输、常用命令与 AI 助手，以及空间分析、重复文件检查、批量改名和设备批量唤醒。适配 PC 与移动端。",
+      "platform": [
+        "x86",
+        "arm"
+      ],
+      "categories": [
+        "系统工具"
+      ],
+      "icon_url": "./apps/deskicons/icon.png",
+      "preview_urls": [
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.6/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.6/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.6/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.6/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.6/docs/images/readme/wake-on-lan.png"
+      ],
+      "readme_url": "./apps/deskicons/README.md",
+      "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
+      "maintainer": "kaf",
+      "maintainer_url": "https://github.com/kaf931/fnos-manager",
+      "distributor": "latte03",
+      "distributor_url": "https://github.com/latte03",
+      "run_as": "root",
+      "install_type": "",
+      "is_docker": false,
+      "service_port": "",
+      "releases": {
+        "0.3.6": {
+          "changelog": "NAS 管家 0.3.6\n\n## 新增\n\n- 支持从 GitHub Release 检查新版本、查看 更新说明，并匹配 x86_64 / ARM64 安装包。\n- 支持应用内下载、校验和安装更新，展示下载百分比及安装状态；安装失败时恢复原运行文件与数据库。\n- 新增手动 / 自动更新设置，自动更新在远程会话和后台任务空闲时执行。\n- 更新下载支持断点续传，遇到连接超时、网络中断或服务器临时错误时自动重试，最多 5 次。\n- 应用清理新增“更新缓存”，支持查看占用、更新日志和批量清理；进行中的任务受保护。\n- 新增默认、靛蓝、鸢尾紫、深青强调色，以及终端条纹 / 纯色背景选项。\n\n## 优化与修复\n\n- 弹窗尺寸和滚动布局统一。\n- 修复弹窗首次打开时关闭按钮出现蓝色焦点框的问题，保留键盘操作焦点。\n- 桌面左下角设置旁显示新版本入口及实际下载百分比，移动端底部导航保持原布局。\n- 优化了一些UI表现。\n\n## 说明\n- 飞牛的开发者文档不支持修改标题栏的样式，所以如果整体切换主题，非常违和，可能后续飞牛官方支持配置后会更新不同的主题表现方式。",
+          "updated_at": "2026-11-01T03:58:55Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.6/NAS.-0.3.6-x86_64.fpk",
+              "sha256": "85eeb134273ca2155b99732bd3fc337e9093f5777d92e8f96851caf41ccfa89a",
+              "size": 94257884
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.6/NAS.-0.3.6-arm64.fpk",
+              "sha256": "a76d639580cdba048e3a60035167fffb0b960c6ec8147fdf7ddc52fa1b2edcda",
+              "size": 89237973
+            }
+          }
+        }
+      }
     }
   }
 }

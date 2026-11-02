@@ -25,6 +25,10 @@ on:
         description: 'RustFS 上游 tag（留空表示最新 Release）'
         required: false
         type: string
+      manager_tag:
+        description: 'NAS 管家 fnos-manager 上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -99,6 +103,17 @@ jobs:
             node scripts/sync-rustfs.mjs --tag "$INPUT_TAG"
           else
             node scripts/sync-rustfs.mjs
+          fi
+
+      - name: Sync NAS Manager metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.manager_tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-fnos-manager.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-fnos-manager.mjs
           fi
 
       - name: Validate source and downloads
