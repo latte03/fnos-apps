@@ -29,6 +29,10 @@ on:
         description: 'NAS 管家 fnos-manager 上游 tag（留空表示最新 Release）'
         required: false
         type: string
+      qas_tag:
+        description: 'QAS 控制台 quark-auto-save 上游 tag（留空表示最新 Release）'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -114,6 +118,17 @@ jobs:
             node scripts/sync-fnos-manager.mjs --tag "$INPUT_TAG"
           else
             node scripts/sync-fnos-manager.mjs
+          fi
+
+      - name: Sync QAS metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.qas_tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            node scripts/sync-qas.mjs --tag "$INPUT_TAG"
+          else
+            node scripts/sync-qas.mjs
           fi
 
       - name: Validate source and downloads

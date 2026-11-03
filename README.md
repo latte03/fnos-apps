@@ -21,8 +21,9 @@
 | 抖音下载 | `DouyinDL` | all | 1.0.5 | [Zyc009234/fnos-douyin-dl](https://github.com/Zyc009234/fnos-douyin-dl) |
 | RustFS | `rustfs-fnos` | all | 1.0.4-2 | [a10463981/rustfs-fnos](https://github.com/a10463981/rustfs-fnos) |
 | NAS 管家 | `deskicons` | x86 / arm | 0.3.6 | [kaf931/fnos-manager](https://github.com/kaf931/fnos-manager) |
+| QAS 控制台（夸克自动转存） | `qas` | x86 | 0.3.7 | [latte03/quark-auto-save](https://github.com/latte03/quark-auto-save) |
 
-六个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
+七个应用的安装包都直接引用上游 GitHub Release，并用 `sha256` 与 `size` 锁定；本仓库只保存清单、图标和说明。上游发布新版本后，定时工作流会更新清单。
 
 `fnmedia-ext` 是 MIT、纯 Python 的 `all` 架构应用，本源默认使用完整版（含 TVBox 运行时）；0.8 MB 的公开精简版在应用详情页给出直达链接。
 
@@ -33,6 +34,8 @@
 `RustFS` 是由社区（[a10463981](https://github.com/a10463981/rustfs-fnos)）打包的 RustFS for fnOS，上游 RustFS 本体以 Apache-2.0 发布，本仓库直接使用其安装包内图标。它依赖 Docker，安装与升级时需要能访问容器镜像仓库；包内没有架构相关二进制，一个 `all` 包同时用于 x86 与 ARM（ARM 上游未做真机验证）。
 
 `deskicons`（NAS 管家）未提供开源许可证。应用图标直接取自上游安装包（与安装后 NAS 上的 `/vol1/@appcenter/deskicons/ui/images/icon_256.png` 一致），预览图链接上游 `docs/` 截图。它依赖 `nodejs_v22`，没有固定 TCP 端口，并且在 FPK 里声明以 `root` 运行（管理容器、计划任务、SSH 与存储文件需要），安装前请确认接受这一点。
+
+`qas`（QAS 控制台）以 AGPL-3.0 发布，是源作者自己的项目；本仓库直接使用其安装包内图标。它是原生 Go 应用（不是 Docker 应用），仅发布 x86 安装包，服务端口为 8710。
 
 ## 源格式速查（V2）
 
@@ -157,6 +160,9 @@
 │  └─ deskicons/
 │     ├─ icon.png              # 上游安装包内图标
 │     └─ README.md             # 详情页说明
+│  └─ qas/
+│     ├─ icon.png              # 上游安装包内图标（AGPL-3.0）
+│     └─ README.md             # 详情页说明
 ├─ scripts/
 │  ├─ lib/upstream.mjs         # 各同步脚本共用的上游 pin 自愈逻辑
 │  ├─ sync-disklens.mjs        # 跟随 DiskLens Release 更新清单
@@ -165,15 +171,16 @@
 │  ├─ sync-douyin-dl.mjs       # 跟随 DouyinDL Release 更新清单
 │  ├─ sync-rustfs.mjs          # 跟随 RustFS Release 更新清单
 │  ├─ sync-fnos-manager.mjs    # 跟随 NAS 管家 Release 更新清单
+│  ├─ sync-qas.mjs             # 跟随 QAS 控制台 Release 更新清单
 │  └─ validate.mjs             # 按 V2 规则校验
 └─ .github/workflows/
-   ├─ sync-apps.yml            # 每日检查六个上游的新版本
+   ├─ sync-apps.yml            # 每日检查七个上游的新版本
    └─ validate.yml             # push / PR 时校验清单
 ```
 
 ## 自动同步
 
-六个同步脚本分别跟随各自的上游 Release：
+七个同步脚本分别跟随各自的上游 Release：
 
 - `sync-disklens.mjs` 找到 `DiskLens-<version>-amd64.fpk` 与 `-arm64.fpk`，读取仓库内 `fnos/manifest` 核对 `appname`、版本、名称、简介和 changelog。
 - `sync-fnos-quark.mjs` 找到 `fnos-quark-<version>-x86_64.fpk` 与 `-arm64.fpk`。上游只发布 FPK，脚本会下载 x86_64 包，从包内 `manifest` 读取 `appname`、`application_version`、`display_name`、`desc`、`service_port`、`os_min_version`，并从 `config/privilege` 读取 `run_as`。
@@ -181,8 +188,9 @@
 - `sync-douyin-dl.mjs` 读取固定文件名 `DouyinDL.fpk`，从包内 `manifest` 读取 `appname`、`version`、`display_name`、`desc`、`service_port`、`os_min_version`、`changelog`，并从 `config/privilege` 读取 `run_as`。
 - `sync-rustfs.mjs` 找到 `rustfs-fnos-<version>-all.fpk`，从包内 `manifest` 读取 `appname`、`version`、`platform`、`display_name`、`desc`、`service_port`、`os_min_version`，从 `config/privilege` 读取 `run_as`，从 `config/resource` 判断是否为 Docker 应用；changelog 优先取 Release 正文。
 - `sync-fnos-manager.mjs` 找到 `NAS.-<version>-x86_64.fpk` 与 `-arm64.fpk`（上游 tag 不带 `v` 前缀）。上游同样只发布 FPK，脚本会下载 x86_64 包，从包内 `manifest` 读取 `appname`、`version`、`display_name`、`desc`、`platform`、`os_min_version`，并从 `config/privilege` 读取 `run_as`；预览图按同步到的 tag 指向上游 `docs/images/readme/` 的截图。
+- `sync-qas.mjs` 找到 `qas_<version>_x86.fpk`，从包内 `manifest` 读取 `appname`、`version`、`platform`、`display_name`、`desc`、`service_port`、`os_min_version`、`changelog`，并从 `config/privilege` 读取 `run_as`。
 
-六者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。历史版本的校验值也会自动核对：上游在原 tag 重传资产时刷新 `size`/`sha256`，上游删除的版本则从清单移除，这段逻辑在 `scripts/lib/upstream.mjs` 里由各脚本共用。
+七者都会读取 GitHub 提供的 `sha256` 摘要（缺失时下载文件自行计算），把新版本写入 `fnpack.json`，保留已有版本并按发布时间倒序排列。历史版本的校验值也会自动核对：上游在原 tag 重传资产时刷新 `size`/`sha256`，上游删除的版本则从清单移除，这段逻辑在 `scripts/lib/upstream.mjs` 里由各脚本共用。
 
 ```sh
 node scripts/sync-disklens.mjs
@@ -212,9 +220,15 @@ node scripts/sync-fnos-manager.mjs --tag 0.3.6
 node scripts/sync-fnos-manager.mjs --fpk /path/to/NAS.-0.3.6-x86_64.fpk
 node scripts/sync-fnos-manager.mjs --proxy https://gh-proxy.com/
 node scripts/sync-fnos-manager.mjs --force
+node scripts/sync-qas.mjs
+node scripts/sync-qas.mjs --dry-run
+node scripts/sync-qas.mjs --tag v0.3.7
+node scripts/sync-qas.mjs --fpk /path/to/qas_0.3.7_x86.fpk
+node scripts/sync-qas.mjs --proxy https://gh-proxy.com/
+node scripts/sync-qas.mjs --force
 ```
 
-已存在的版本在下载地址不变（即上游原地重传）时会自动刷新校验值；下载地址变化时默认报错退出，需要 `--force` 才会覆盖。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发，并可用 `disklens_tag` / `quark_tag` / `fnmedia_tag` / `douyin_tag` / `rustfs_tag` / `manager_tag` 指定上游版本；工作流会在提交前用 GitHub Release API 的 `digest` 字段核对全部安装包的 `sha256` 与 `size`（非 GitHub 地址或 API 未提供 digest 时回退为下载核对）。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync app sources` 即可。
+已存在的版本在下载地址不变（即上游原地重传）时会自动刷新校验值；下载地址变化时默认报错退出，需要 `--force` 才会覆盖。GitHub Actions 每天 03:17 UTC 运行一次，也可以在 Actions 页面手动触发，并可用 `disklens_tag` / `quark_tag` / `fnmedia_tag` / `douyin_tag` / `rustfs_tag` / `manager_tag` / `qas_tag` 指定上游版本；工作流会在提交前用 GitHub Release API 的 `digest` 字段核对全部安装包的 `sha256` 与 `size`（非 GitHub 地址或 API 未提供 digest 时回退为下载核对）。GitHub 可能在仓库连续 60 天无活动后暂停定时工作流，届时在 Actions 页面手动运行 `Sync app sources` 即可。
 
 ## 新增应用
 
@@ -236,9 +250,9 @@ git diff --check
 
 ## 说明
 
-- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 与 fnmedia-ext 以 MIT 许可证发布，RustFS 及其社区应用包以 Apache-2.0 发布，fnOS-quark 为专有软件，DouyinDL 与 deskicons 未提供 LICENSE、默认保留所有权利。
-- 安装包引用上游 Release 地址。上游在原 tag 重传资产时，同步脚本会自动刷新 `size`/`sha256`；上游删除某个版本时，该版本会从清单移除，保证清单里的下载地址始终可用。镜像前请先确认上游许可证是否允许（DiskLens、fnmedia-ext、RustFS 可以；fnOS-quark、DouyinDL、deskicons 需要先联系作者）。
+- 本仓库只提供索引与元数据。应用版权归各自上游所有；DiskLens 与 fnmedia-ext 以 MIT 许可证发布，RustFS 及其社区应用包、qas 以 Apache-2.0 / AGPL-3.0 发布，fnOS-quark 为专有软件，DouyinDL 与 deskicons 未提供 LICENSE、默认保留所有权利。
+- 安装包引用上游 Release 地址。上游在原 tag 重传资产时，同步脚本会自动刷新 `size`/`sha256`；上游删除某个版本时，该版本会从清单移除，保证清单里的下载地址始终可用。镜像前请先确认上游许可证是否允许（DiskLens、fnmedia-ext、RustFS、qas 可以；fnOS-quark、DouyinDL、deskicons 需要先联系作者）。
 - fnmedia-ext 依赖官方「影视」（`trim.media`）保持安装并启用；DouyinDL 与 deskicons 依赖 `nodejs_v22`（FPK manifest 已声明），DouyinDL 的分享链接下载还需要 NAS 安装 Chromium；RustFS 依赖 Docker 与容器镜像仓库访问。这些依赖由 fnOS 或用户环境处理，FnDepot 只负责下载安装包。
 - deskicons 在 FPK 中声明以 `root` 运行，用于容器、计划任务、SSH 和存储文件等系统级操作。
-- fnOS-quark 和 DouyinDL 的预览图直接链接上游（如有），应用图标是本源自制的通用占位图，不是上游官方素材；RustFS 与 deskicons 的图标取自各自上游安装包（deskicons 与安装在 NAS 上的图标一致）。
+- fnOS-quark 和 DouyinDL 的预览图直接链接上游（如有），应用图标是本源自制的通用占位图，不是上游官方素材；RustFS、deskicons 与 qas 的图标取自各自上游安装包（deskicons 与安装在 NAS 上的图标一致）。
 - 源名称、简介与字段规则可能随 FnDepot 更新；升级客户端后建议重新检查上游 README。
