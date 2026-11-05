@@ -1,0 +1,65 @@
+#!/bin/bash
+# install_callback — 安装后 hook：@appdata 骨架 + share 数据骨架 + 权限自愈。
+#
+# ⚠️ 顺序坑：先 mkdir -p TRIM_PKGVAR（含 logs）再写日志——首装时 @appdata 还不存在，
+#    直接 `echo ... >> "${TRIM_PKGVAR}/install.log"` 会失败，日志一片空白，问题查不到。
+# ⚠️ chmod -R a+rX "${TRIM_APPDEST}" 必有：fpk 打包源目录权限若是 751，package 用户读不了包内文件。
+# ⚠️ 本脚本不打印任何凭据；账号/Token 由用户在应用页面填写，不进安装日志。
+set -u
+
+APP_NAME="cloudflare-tunnel"
+SHARE_NAME="cloudflare-tunnel"
+
+mkdir -p "${TRIM_PKGVAR}/logs" 2>/dev/null || true
+LOG="${TRIM_PKGVAR}/install.log"
+: >> "${LOG}" 2>/dev/null || true
+echo "===== install_callback $(date) ver=${TRIM_APPVER:-?} =====" >> "${LOG}"
+
+# 与 cmd/main 完全相同的 share 解析规则。本脚本自带一份：卸载/升级阶段 cmd/ 目录可能被清，
+# 不能依赖 source 同目录的兄弟文件。
+resolve_share_root() {
+  local _app="$1" _name="$2" _paths="$3" _c
+  for _c in "/var/apps/${_app}/shares/${_name}" "${_paths%%:*}"; do
+    [ -n "${_c}" ] || continue
+    case "${_c}" in /vol0/*) continue ;; esac
+    if [ -d "${_c}" ] || mkdir -p "${_c}" 2>/dev/null; then
+      printf '%s\n' "${_c}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+SHARE_ROOT="$(resolve_share_root "${APP_NAME}" "${SHARE_NAME}" "${TRIM_DATA_SHARE_PATHS:-}")"
+if [ -z "${SHARE_ROOT}" ]; then
+  echo "FAIL: 没有可用 data-share（TRIM_DATA_SHARE_PATHS=${TRIM_DATA_SHARE_PATHS:-<unset>}）" >> "${LOG}"
+  echo "FATAL: data-share 目录不可用，请检查 config/resource 的 data-share 声明" \
+    > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+fi
+
+# config 存 settings.json / apikeys.json（服务端按 0600 写），data 存 state.json / activity.json
+mkdir -p "${SHARE_ROOT}/config" "${SHARE_ROOT}/data" || {
+  echo "FAIL: 无法创建 ${SHARE_ROOT}/config 或 /data" >> "${LOG}"
+  echo "FATAL: share 数据目录创建失败（权限不足）" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+}
+chmod 700 "${SHARE_ROOT}/config" 2>/dev/null || true
+echo "share root ready: ${SHARE_ROOT} (config 0700, data 0755)" >> "${LOG}"
+
+# 程序本体：包装目录权限可能是 751，统一放开读+目录进入权限
+chmod -R a+rX "${TRIM_APPDEST}" 2>/dev/null || true
+echo "appdest readable: ${TRIM_APPDEST}" >> "${LOG}"
+
+# 两个可执行文件（server 由 go build 产出，cloudflared 从 upstream 拷入）
+for BIN in "${TRIM_APPDEST}/cloudflare-tunnel-server" "${TRIM_APPDEST}/bin/cloudflared"; do
+  if [ -f "${BIN}" ]; then
+    chmod +x "${BIN}" 2>/dev/null || true
+    echo "exec bit set: ${BIN}" >> "${LOG}"
+  else
+    echo "WARN: 缺少 ${BIN}" >> "${LOG}"
+  fi
+done
+
+echo "===== done =====" >> "${LOG}"
+exit 0

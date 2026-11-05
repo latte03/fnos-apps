@@ -1,0 +1,52 @@
+#!/bin/bash
+# upgrade_callback — 升级后 hook。**铁律：只覆盖程序，绝不动数据**。
+# 数据在 share（见 cmd/main），升级时绝不覆盖 config/settings.json、config/apikeys.json、
+# data/state.json、data/activity.json，也不删除任何已有文件。
+# @appcenter（TRIM_APPDEST）升级会被整体替换，所以这里只做「目录存在 + 权限正确」。
+set -u
+
+APP_NAME="cloudflare-tunnel"
+SHARE_NAME="cloudflare-tunnel"
+
+mkdir -p "${TRIM_PKGVAR}/logs" 2>/dev/null || true
+LOG="${TRIM_PKGVAR}/upgrade.log"
+: >> "${LOG}" 2>/dev/null || true
+echo "===== upgrade_callback $(date) ${TRIM_OLD_APPVER:-?} -> ${TRIM_APPVER:-?} =====" >> "${LOG}"
+
+resolve_share_root() {
+  local _app="$1" _name="$2" _paths="$3" _c
+  for _c in "/var/apps/${_app}/shares/${_name}" "${_paths%%:*}"; do
+    [ -n "${_c}" ] || continue
+    case "${_c}" in /vol0/*) continue ;; esac
+    if [ -d "${_c}" ] || mkdir -p "${_c}" 2>/dev/null; then
+      printf '%s\n' "${_c}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+SHARE_ROOT="$(resolve_share_root "${APP_NAME}" "${SHARE_NAME}" "${TRIM_DATA_SHARE_PATHS:-}")"
+if [ -z "${SHARE_ROOT}" ]; then
+  echo "FAIL: 没有可用 data-share" >> "${LOG}"
+  echo "FATAL: data-share 目录不可用" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+fi
+
+# mkdir -p 对已存在的 config/data 是空操作，不会动里面任何文件
+mkdir -p "${SHARE_ROOT}/config" "${SHARE_ROOT}/data" || {
+  echo "FAIL: 无法创建 ${SHARE_ROOT} 下的 config/data" >> "${LOG}"
+  echo "FATAL: share 数据目录创建失败（权限不足）" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+}
+chmod 700 "${SHARE_ROOT}/config" 2>/dev/null || true
+echo "share root ok: ${SHARE_ROOT}（已存在的数据未改动）" >> "${LOG}"
+
+chmod -R a+rX "${TRIM_APPDEST}" 2>/dev/null || true
+for BIN in "${TRIM_APPDEST}/cloudflare-tunnel-server" "${TRIM_APPDEST}/bin/cloudflared"; do
+  [ -f "${BIN}" ] && chmod +x "${BIN}" 2>/dev/null || true
+done
+echo "appdest ready: ${TRIM_APPDEST}" >> "${LOG}"
+
+echo "===== done =====" >> "${LOG}"
+exit 0

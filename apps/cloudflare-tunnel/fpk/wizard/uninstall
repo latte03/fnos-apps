@@ -1,0 +1,22 @@
+[
+  {
+    "stepTitle": "卸载 Cloudflare Tunnel",
+    "items": [
+      {
+        "type": "tips",
+        "label": "",
+        "helpText": "保留或删除应用数据。\n\n• 保留：共享目录「cloudflare-tunnel」里的配置与数据（账号、API Token、隧道状态、API Key）全部不动，将来重装直接恢复。\n• 清除：删除共享目录里的全部应用数据，以及配置/日志/PID（不可恢复）。卸载后会先停止隧道连接。\n\n默认保留。"
+      },
+      {
+        "type": "radio",
+        "field": "wizard_delete_data",
+        "label": "仅卸载，保留现有数据以备将来重新安装。",
+        "initValue": "false",
+        "options": [
+          { "label": "保留现有数据", "value": "false" },
+          { "label": "清除所有应用数据（不可恢复）！！！", "value": "true" }
+        ]
+      }
+    ]
+  }
+]

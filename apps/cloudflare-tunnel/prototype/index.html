@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>概览 · Tunnel for fnOS</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23245bff'/%3E%3Cpath d='M11 23.5c3.2-7.2 6.9-7.2 9 0 2.1 7.2 5.8 7.2 9 0' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="Tunnel 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="12" fill="url(#brandGrad)" />
+            <path d="M11 23.5c3.2-7.2 6.9-7.2 9 0 2.1 7.2 5.8 7.2 9 0" stroke="#fff" stroke-width="2.4" stroke-linecap="round" />
+            <circle cx="20" cy="28" r="2.2" fill="#fff" />
+            <defs>
+              <linearGradient id="brandGrad" x1="4" y1="2" x2="37" y2="39" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#3B6CFF" />
+                <stop offset="1" stop-color="#0E9384" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>Tunnel</strong>
+          <small>for fnOS</small>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="主导航">
+        <div class="nav-group">
+          <p class="nav-label">工作区</p>
+          <a class="nav-link" href="#overview" data-page="overview">
+            <span class="nav-icon" data-icon="grid"></span><span>概览</span>
+          </a>
+          <a class="nav-link" href="#tunnels" data-page="tunnels">
+            <span class="nav-icon" data-icon="waypoints"></span><span>隧道</span>
+            <span class="nav-count">3</span>
+          </a>
+          <a class="nav-link" href="#routes" data-page="routes">
+            <span class="nav-icon" data-icon="branch"></span><span>路由</span>
+            <span class="nav-count">4</span>
+          </a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">诊断</p>
+          <a class="nav-link" href="#logs" data-page="logs">
+            <span class="nav-icon" data-icon="terminal"></span><span>运行日志</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">集成</p>
+          <a class="nav-link" href="#api" data-page="api">
+            <span class="nav-icon" data-icon="braces"></span><span>接入</span>
+            <span class="nav-badge">二期</span>
+          </a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">配置</p>
+          <a class="nav-link" href="#settings" data-page="settings">
+            <span class="nav-icon" data-icon="sliders"></span><span>设置</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="host-card">
+          <span class="status-dot healthy" aria-hidden="true"></span>
+          <div class="host-copy">
+            <strong>your-nas</strong>
+            <small>局域网 · 192.168.1.10</small>
+          </div>
+          <span class="host-signal" data-icon="wifi" aria-hidden="true"></span>
+        </div>
+        <div class="side-row">
+          <button class="icon-btn" id="theme-toggle" type="button" aria-label="切换主题">
+            <span data-icon="moon"></span>
+          </button>
+          <span class="version-tag">v0.1.0 · 原型</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-scrim" id="sidebar-scrim" hidden></div>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn mobile-menu" id="mobile-menu" type="button" aria-label="打开导航">
+            <span data-icon="menu"></span>
+          </button>
+          <div class="crumbs">
+            <span>控制台</span>
+            <span class="crumb-sep">/</span>
+            <strong id="crumb">概览</strong>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="prototype-badge">原型 · 演示数据</span>
+          <button class="icon-btn" id="refresh-btn" type="button" aria-label="刷新状态">
+            <span data-icon="refresh"></span>
+          </button>
+          <button class="account-chip" type="button" data-action="account">
+            <span class="avatar">HL</span>
+            <span class="account-copy">
+              <strong>Home Lab</strong>
+              <small>Cloudflare</small>
+            </span>
+            <span class="chevron" data-icon="chevron-down"></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="page" id="page" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="overlay-root"></div>
+  <div id="toast-root" class="toast-stack" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

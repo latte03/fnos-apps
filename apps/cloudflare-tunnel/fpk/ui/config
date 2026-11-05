@@ -1,0 +1,13 @@
+{
+  ".url": {
+    "cloudflare-tunnel.panel": {
+      "title": "Cloudflare Tunnel",
+      "icon": "images/icon-{0}.png",
+      "type": "iframe",
+      "protocol": "",
+      "port": "18960",
+      "url": "/",
+      "allUsers": true
+    }
+  }
+}

@@ -1,0 +1,39 @@
+#!/bin/bash
+# config_callback — 用户从「应用设置」改完配置后触发。
+# 触发时机：config_init →（更新配置变量）→ config_callback
+# wizard 里 field 收集到的值会以**同名环境变量**注入本脚本（与 install 向导同一套规则），
+# 所以这里直接读 $wizard_port 即可。
+#
+# 本应用的职责：端口若变了要让监听生效 → stop 再 start（cmd/main 的 CT_LISTEN 取 TRIM_SERVICE_PORT）。
+# ⚠️ 账号 ID / API Token 存在 share 的 config/settings.json 里，由应用自身写入，本脚本不碰、也不打印。
+set -u
+
+APP_NAME="cloudflare-tunnel"
+
+mkdir -p "${TRIM_PKGVAR}/logs" 2>/dev/null || true
+LOG="${TRIM_PKGVAR}/config.log"
+: >> "${LOG}" 2>/dev/null || true
+echo "===== config_callback $(date) wizard_port=${wizard_port:-<unset>} TRIM_SERVICE_PORT=${TRIM_SERVICE_PORT:-<unset>} =====" >> "${LOG}"
+
+MAIN_SELF="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/main"
+[ -f "${MAIN_SELF}" ] || MAIN_SELF="${TRIM_APPDEST:-/nonexistent}/cmd/main"
+
+if [ ! -f "${MAIN_SELF}" ]; then
+  echo "FAIL: 找不到 cmd/main（${MAIN_SELF}）" >> "${LOG}"
+  echo "FATAL: 配置已保存，但找不到服务启动脚本" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+fi
+
+# 重启服务，让新的端口/配置生效
+bash "${MAIN_SELF}" stop >> "${LOG}" 2>&1 || true
+sleep 1
+if bash "${MAIN_SELF}" start >> "${LOG}" 2>&1; then
+  echo "服务已重启（端口 ${TRIM_SERVICE_PORT:-${wizard_port:-18960}}）" >> "${LOG}"
+else
+  echo "FAIL: 服务重启失败，详见 ${TRIM_PKGVAR}/logs/app.log" >> "${LOG}"
+  echo "FATAL: 服务重启失败，详见应用日志" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+  exit 1
+fi
+
+echo "===== done =====" >> "${LOG}"
+exit 0

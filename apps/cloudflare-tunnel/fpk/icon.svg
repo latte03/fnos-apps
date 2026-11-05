@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Cloudflare Tunnel">
+  <title>Cloudflare Tunnel</title>
+  <defs>
+    <linearGradient id="ct-bg" x1="0.05" y1="1" x2="0.95" y2="0">
+      <stop offset="0" stop-color="#0b1e49"/>
+      <stop offset="0.55" stop-color="#1b46c9"/>
+      <stop offset="1" stop-color="#0e9384"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#ct-bg)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="87" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 758 L256 400 A235.5 235.5 0 0 1 727 400 L727 758"/>
+    <path d="M345 589 L566 589"/>
+  </g>
+  <path d="M566 511 L655 589 L566 667 Z" fill="#ffffff"/>
+</svg>

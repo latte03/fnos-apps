@@ -1,0 +1,147 @@
+#!/bin/bash
+# cmd/main — start/stop/status（必选）。原生应用：PID 文件管理，日志/PID 走 TRIM_PKGVAR（@appdata，易失）。
+#
+# 进程模型：
+#   cloudflare-tunnel-server 是唯一前台进程（PID 记录在 $TRIM_PKGVAR/app.pid），
+#   cloudflared 由 server 自己 spawn 并监控（token 走 TUNNEL_TOKEN 环境变量，不进 argv）。
+#   本脚本 stop 时只对 server 发 SIGTERM 并等待它收尾；若 server 被强杀留下孤儿 cloudflared，
+#   再按可执行文件路径兜杀一次。
+set -u
+
+APP_NAME="cloudflare-tunnel"
+SHARE_NAME="cloudflare-tunnel"
+
+APP_DIR="${TRIM_APPDEST:-/usr/local/apps/@appcenter/cloudflare-tunnel}"
+VAR_DIR="${TRIM_PKGVAR:-/var/apps/cloudflare-tunnel/var}"
+LOG_DIR="${VAR_DIR}/logs"
+LOG_FILE="${LOG_DIR}/app.log"
+PID_FILE="${VAR_DIR}/app.pid"
+
+# 端口只认一个事实源：manifest service_port → fnOS 注入的 TRIM_SERVICE_PORT。
+SERVICE_PORT="${TRIM_SERVICE_PORT:-18960}"
+METRICS_PORT="${CT_METRICS_PORT:-20241}"
+
+SERVER_BIN="${APP_DIR}/cloudflare-tunnel-server"
+CLOUDFLARED_BIN="${APP_DIR}/bin/cloudflared"
+
+die() {
+  echo "FATAL: $1" >&2
+  [ -n "${TRIM_TEMP_LOGFILE:-}" ] && echo "FATAL: $1" > "${TRIM_TEMP_LOGFILE}"
+  exit 1
+}
+
+# 数据目录: 必须落在 share（config/resource 声明 → fnOS 自动创建并授 Windows ACL）。
+# ⚠️ 不要用 "${APP_DIR}/shares"—— APP_DIR=@appcenter 是程序本体，卸载时整体删除，数据必丢。
+# ⚠️ 官方文档写 /var/apps/<app>/share/（单数），实测系统是 shares/（复数），以实测为准。
+# ⚠️ 不要 `dirname "$TRIM_DATA_SHARE_PATHS"` 再拼 share 名：安装阶段 fnOS 给的是还没落卷的占位
+#    路径（实测 /vol0/@appshare/<appname>），拼出来的目录不存在、也建不动。
+#    正解：优先用 fnOS 自己维护的软链 /var/apps/<app>/shares/<name>（永远指向真实卷），
+#    退化再用 TRIM_DATA_SHARE_PATHS 首段（官方写法 ${VAR%%:*} 取首段，不是 dirname）。
+resolve_share_root() {
+  local _app="$1" _name="$2" _paths="$3" _c
+  for _c in "/var/apps/${_app}/shares/${_name}" "${_paths%%:*}"; do
+    [ -n "${_c}" ] || continue
+    case "${_c}" in /vol0/*) continue ;; esac
+    if [ -d "${_c}" ] || mkdir -p "${_c}" 2>/dev/null; then
+      printf '%s\n' "${_c}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+SHARE_ROOT="$(resolve_share_root "${APP_NAME}" "${SHARE_NAME}" "${TRIM_DATA_SHARE_PATHS:-}")" \
+  || die "找不到 data-share 目录，请检查 config/resource 的 data-share 声明"
+CONFIG_DIR="${SHARE_ROOT}/config"
+DATA_DIR="${SHARE_ROOT}/data"
+mkdir -p "${VAR_DIR}" "${LOG_DIR}" "${CONFIG_DIR}" "${DATA_DIR}" \
+  || die "无法创建运行/数据目录（${VAR_DIR} / ${SHARE_ROOT}，share 权限不足）"
+chmod 700 "${CONFIG_DIR}" 2>/dev/null || true
+
+is_running() {
+  [ -f "${PID_FILE}" ] || return 1
+  local pid
+  pid=$(cat "${PID_FILE}" 2>/dev/null)
+  [ -n "${pid}" ] && kill -0 "${pid}" 2>/dev/null
+}
+
+# 按可执行文件路径找 cloudflared 进程（纯 /proc 扫描，不依赖 procps/pkill）。
+cloudflared_pids() {
+  local d pid
+  for d in /proc/[0-9]*; do
+    pid="${d#/proc/}"
+    [ "${pid}" = "$$" ] && continue
+    if tr '\0' ' ' < "${d}/cmdline" 2>/dev/null | grep -qF -- "${CLOUDFLARED_BIN}"; then
+      printf '%s\n' "${pid}"
+    fi
+  done
+}
+
+start_service() {
+  is_running && return 0
+  [ -x "${SERVER_BIN}" ] || die "缺少服务端程序 ${SERVER_BIN}（安装不完整，请重装）"
+  rm -f "${PID_FILE}"
+  echo "===== start $(date '+%Y-%m-%d %H:%M:%S') port=${SERVICE_PORT} =====" >> "${LOG_FILE}"
+  CT_LISTEN="0.0.0.0:${SERVICE_PORT}" \
+  CT_CONFIG_DIR="${CONFIG_DIR}" \
+  CT_DATA_DIR="${DATA_DIR}" \
+  CT_LOG_DIR="${LOG_DIR}" \
+  CT_CLOUDFLARED="${CLOUDFLARED_BIN}" \
+  CT_METRICS_PORT="${METRICS_PORT}" \
+  nohup "${SERVER_BIN}" >> "${LOG_FILE}" 2>&1 &
+  echo $! > "${PID_FILE}"
+  sleep 2
+  if is_running; then
+    echo "${APP_NAME} started on port ${SERVICE_PORT} (pid $(cat "${PID_FILE}"))"
+  else
+    rm -f "${PID_FILE}"
+    die "${APP_NAME} start failed，详见 ${LOG_FILE}"
+  fi
+}
+
+stop_service() {
+  local pid i cp
+  if is_running; then
+    pid=$(cat "${PID_FILE}" 2>/dev/null)
+    echo "===== stop $(date '+%Y-%m-%d %H:%M:%S') pid=${pid} =====" >> "${LOG_FILE}"
+    # server 收到 SIGTERM 后会自己 SIGTERM cloudflared 并收尾，给它最多 10 秒
+    kill -TERM "${pid}" 2>/dev/null || true
+    i=0
+    while kill -0 "${pid}" 2>/dev/null && [ "${i}" -lt 10 ]; do
+      sleep 1
+      i=$((i + 1))
+    done
+    if kill -0 "${pid}" 2>/dev/null; then
+      kill -KILL "${pid}" 2>/dev/null || true
+      sleep 1
+    fi
+    rm -f "${PID_FILE}"
+  fi
+  # 兜底：server 正常会带走自己的 cloudflared；被强杀/崩溃时仍有孤儿，按路径清掉
+  for cp in $(cloudflared_pids); do
+    kill -TERM "${cp}" 2>/dev/null || true
+  done
+  sleep 1
+  for cp in $(cloudflared_pids); do
+    kill -KILL "${cp}" 2>/dev/null || true
+  done
+}
+
+case "${1:-}" in
+  start)
+    start_service
+    ;;
+  stop)
+    stop_service
+    ;;
+  restart)
+    stop_service
+    start_service
+    ;;
+  status)
+    is_running && exit 0 || exit 3
+    ;;
+  *)
+    exit 0
+    ;;
+esac

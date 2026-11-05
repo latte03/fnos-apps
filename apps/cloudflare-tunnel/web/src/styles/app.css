@@ -1,0 +1,373 @@
+/* ==========================================================================
+   App additions built on the prototype tokens. global.css is a verbatim copy
+   of prototype/styles.css and remains the source of truth for palette,
+   spacing, typography and motion. Everything here is additive.
+   ========================================================================== */
+
+.layer { z-index: 100; }
+
+/* ---------- app-level notices ---------- */
+.app-notice {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 14px 32px 0;
+}
+.app-notice .notice-bar { margin-bottom: 0; }
+
+.notice-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 15px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.notice-bar > .icon { flex: none; width: 16px; height: 16px; margin-top: 1px; }
+.notice-bar .notice-copy { flex: 1; min-width: 0; }
+.notice-bar .notice-copy strong { display: block; color: var(--ink); font-weight: 800; }
+.notice-bar.info {
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--line));
+  background: linear-gradient(90deg, var(--accent-soft), transparent 78%);
+}
+.notice-bar.info > .icon { color: var(--accent); }
+.notice-bar.warning {
+  border-color: color-mix(in srgb, var(--amber) 26%, var(--line));
+  background: linear-gradient(90deg, var(--amber-soft), transparent 78%);
+}
+.notice-bar.warning > .icon { color: var(--amber); }
+.notice-bar.danger {
+  border-color: color-mix(in srgb, var(--red) 26%, var(--line));
+  background: linear-gradient(90deg, var(--red-soft), transparent 78%);
+}
+.notice-bar.danger > .icon { color: var(--red); }
+.notice-bar > .btn { flex: none; align-self: center; }
+
+.demo-badge {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: var(--accent-soft);
+}
+
+/* ---------- loading ---------- */
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--surface-2), var(--surface-3), var(--surface-2));
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -80% 0; }
+}
+.tunnel-skeleton .tunnel-row { align-items: center; }
+.route-skeleton .route-row { align-items: center; }
+.log-skeleton { display: flex; flex-direction: column; gap: 11px; padding: 20px 15px; }
+.credential-loading { display: flex; flex-direction: column; gap: 9px; padding: 14px 18px; }
+.settings-loading { display: flex; flex-direction: column; gap: 13px; padding: 18px 21px 22px; }
+.boot-error { max-width: 680px; }
+
+/* ---------- empty states ---------- */
+.table-empty.is-big { padding: 64px 24px; }
+.empty-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+}
+.empty-icon .icon { width: 20px; height: 20px; }
+.empty-title { font-size: 15px; font-weight: 800; color: var(--ink-2); }
+.table-empty.is-big .empty-title { font-size: 18px; color: var(--ink); }
+.empty-message { margin: 5px auto 0; max-width: 420px; font-size: 14px; color: var(--ink-3); line-height: 1.6; }
+.empty-actions { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.activity .table-empty { padding: 28px 21px; }
+
+/* ---------- setup / first run ---------- */
+.setup-card { overflow: hidden; }
+.setup-steps { list-style: none; margin: 0; padding: 0 21px 20px; display: flex; flex-direction: column; }
+.setup-steps li {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+.setup-steps li:first-child { border-top: 0; }
+.setup-index {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.setup-steps li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.setup-steps strong { font-size: 14px; font-weight: 700; }
+.setup-steps small { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+/* ---------- tunnel picker ---------- */
+/* The reveal animation gives every card its own stacking context; without an
+   explicit layer the picker menu renders behind the route card below it. */
+.toolbar { position: relative; z-index: 30; }
+.picker { position: relative; }
+.picker-trigger { height: 36px; }
+.picker-trigger .account-copy small { font-family: var(--font-mono); }
+.picker-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 45;
+  width: 290px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+.picker-item:hover { background: var(--surface-2); }
+.picker-item.is-selected { background: var(--accent-soft); }
+.picker-item .icon { color: var(--accent); width: 15px; height: 15px; flex: none; }
+.picker-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.picker-copy strong { font-size: 14px; font-weight: 700; }
+.picker-copy small { font-size: 12px; color: var(--ink-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.picker-item .pill { height: 20px; font-size: 12px; flex: none; }
+
+/* ---------- form polish ---------- */
+.input::placeholder,
+.select::placeholder,
+textarea::placeholder,
+.search input::placeholder { color: var(--ink-4); }
+
+/* ---------- routes extras ---------- */
+.catchall-input { height: 30px; min-width: 0; width: 100%; font-size: 13px; }
+.drag-handle.is-locked { color: var(--ink-4); opacity: 0.35; cursor: default; }
+.dns-error { color: var(--red); max-width: 100%; overflow-wrap: anywhere; }
+.yaml-line { white-space: pre-wrap; overflow-wrap: anywhere; min-height: 1.75em; }
+.yaml-code { white-space: normal; }
+
+/* The prototype hides the account copy on phones, but the route picker needs
+   the tunnel name to stay usable. */
+.picker .account-copy { display: flex; }
+.picker .chevron { display: inline-flex; }
+
+/* Route rows become two-line cards below 700px instead of squeezing five
+   logical columns into the six-column desktop grid. */
+@media (max-width: 700px) {
+  .route-row {
+    grid-template-columns: 18px 18px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "idx handle host actions"
+      "idx handle pill actions";
+    column-gap: 8px;
+    row-gap: 6px;
+  }
+  .route-index { grid-area: idx; align-self: start; padding-top: 3px; }
+  .drag-handle { grid-area: handle; align-self: start; }
+  .route-row .route-host { grid-area: host; }
+  .route-row > .pill { grid-area: pill; justify-self: start; }
+  .route-row .route-actions { grid-area: actions; align-self: center; }
+  .route-row .route-service,
+  .route-row .route-arrow { display: none; }
+  .route-row.is-catchall {
+    grid-template-areas:
+      "idx handle host actions"
+      "idx handle input actions";
+  }
+  .route-row.is-catchall .catchall-input { grid-area: input; }
+  .route-row.is-catchall > .pill { display: none; }
+}
+
+/* ---------- secrets / modal errors ---------- */
+.secret-row { flex-wrap: wrap; gap: 8px; }
+.secret-value {
+  flex: 1;
+  min-width: 160px;
+  font-size: 12px;
+  line-height: 1.6;
+  max-height: 68px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.secret-note { margin: 12px 0 0; font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+.modal-error {
+  display: flex;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.modal-error .icon { width: 14px; height: 14px; flex: none; margin-top: 1px; }
+.pill-spinner { width: 9px; height: 9px; border-width: 1.5px; }
+
+/* ---------- api page ---------- */
+.integration-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.code-block-wrap { position: relative; }
+.code-copy {
+  position: absolute;
+  top: 20px;
+  right: 8px;
+  opacity: 0.72;
+  background: rgba(10, 18, 30, 0.55);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd7e8;
+}
+.code-copy:hover { opacity: 1; }
+.endpoint-table {
+  margin-top: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.endpoint-table .data-table th { padding: 8px 12px; }
+.endpoint-table .data-table td { padding: 8px 12px; font-size: 13px; }
+.endpoint-table .host { font-size: 13px; overflow-wrap: anywhere; }
+.endpoint-desc { color: var(--ink-3); font-size: 13px; }
+.method-pill {
+  height: 20px;
+  padding: 0 7px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.m-get { background: var(--accent-soft); color: var(--accent-ink); }
+.m-post { background: var(--green-soft); color: var(--green); }
+.m-put { background: var(--amber-soft); color: var(--amber); }
+.m-delete { background: var(--red-soft); color: var(--red); }
+.credential-list { display: flex; flex-direction: column; min-height: 90px; }
+.credential-row .icon-btn { flex: none; }
+.credential-used { font-size: 12px; height: 21px; margin-left: auto; }
+
+/* ---------- settings extras ---------- */
+.inline-field { width: 100%; gap: 4px; }
+.inline-field .error { margin-top: 1px; }
+.number-field { width: auto; }
+.number-field .input { width: 96px; }
+.setting-control.verify-control { justify-content: space-between; width: 100%; gap: 10px; }
+.verify-line.is-bad { color: var(--red); }
+.path-row .setting-copy small { font-family: var(--font-mono); }
+.path-control { min-width: 0; flex-wrap: nowrap; gap: 4px; }
+.path-value {
+  font-size: 12px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  text-align: left;
+}
+
+/* ---------- logs extras ---------- */
+.auto-scroll-row { width: auto !important; gap: 8px; font-size: 12px; color: var(--ink-3); justify-content: flex-start; }
+.live-dot.is-paused {
+  background: var(--amber);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 13%, transparent);
+  animation: none;
+}
+
+/* ---------- overview extras ---------- */
+.metric-value.is-null { color: var(--ink-4); }
+.qh-empty { margin-top: 11px; font-size: 12px; color: var(--ink-4); }
+.hero .uptime { white-space: nowrap; }
+
+/* ---------- toasts (Vue transition group) ---------- */
+.toast.toast-enter-from,
+.toast.toast-leave-to { opacity: 0; transform: translateY(8px) scale(0.98); }
+.toast.toast-enter-active { transition: opacity 200ms ease, transform 240ms var(--ease-out); }
+.toast.toast-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
+.toast.toast-move { transition: transform 240ms var(--ease-out); }
+
+/* ---------- accessibility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.icon-btn:disabled, .btn:disabled { pointer-events: none; }
+.link { cursor: pointer; }
+
+/* ---------- responsive additions ---------- */
+@media (max-width: 920px) {
+  .app-notice { padding: 12px 18px 0; }
+  .nav-link { min-height: 44px; }
+  .btn { min-height: 42px; }
+  .icon-btn { width: 42px; height: 42px; }
+  .btn.small { min-height: 38px; }
+  .switch::before { content: ""; position: absolute; inset: -11px -3px; }
+  .search input, .input, .select { height: 42px; }
+  .segmented button { height: 34px; }
+  .quick-item { padding: 12px 10px; }
+}
+
+@media (max-width: 700px) {
+  .row-actions .icon-btn,
+  .route-actions .icon-btn,
+  .credential-row .icon-btn { width: 44px; height: 44px; }
+  .row-actions .btn.small { min-height: 44px; }
+  .toolbar .spacer { flex: 1 1 100%; height: 0; }
+  .toolbar .search { flex: 1 1 210px; min-width: 0; }
+  .settings-card .card-head { padding: 17px 17px 3px; }
+  .setting-row { padding: 14px 17px; }
+  .endpoint-card { padding: 16px 15px; }
+  .endpoint-table .data-table td, .endpoint-table .data-table th { padding: 8px 9px; }
+  .log-body { height: 62vh; }
+  .picker-menu { width: min(290px, calc(100vw - 40px)); }
+  .secret-row { flex-direction: column; align-items: stretch; }
+  .secret-row .btn { width: 100%; }
+  .app-notice .notice-bar { flex-wrap: wrap; }
+  .setup-steps li { flex-wrap: wrap; }
+  .log-skeleton { padding: 16px 11px; }
+}
+
+@media (max-width: 620px) {
+  .page-head h1 { font-size: 29px; }
+  .hero h2 { flex-wrap: wrap; }
+  .hero-actions { gap: 6px; }
+  .metric-row { gap: 10px; }
+  .notice-bar { font-size: 13px; }
+  .table-empty.is-big { padding: 48px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: var(--surface-3); }
+}

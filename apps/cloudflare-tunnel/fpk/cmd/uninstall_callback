@@ -1,0 +1,75 @@
+#!/bin/bash
+# uninstall_callback — 卸载清理。
+#
+# fnOS 卸载向导（wizard/uninstall）会弹一个 radio 让用户选择：
+#   保留数据（默认，value="false"） 或 清除数据（value="true"）
+# 用户选择通过环境变量 $wizard_delete_data 传入本脚本（"true"/"false"）。
+#
+# 顺序：先停服务（cmd/main stop 会带走 server 与它 spawn 的 cloudflared），再按用户选择清理。
+# 本应用不是 systemd 应用，不碰 systemctl 单元。
+set -u
+
+APP_NAME="cloudflare-tunnel"
+SHARE_NAME="cloudflare-tunnel"
+
+DELETE_DATA="${wizard_delete_data:-false}"
+echo "数据删除选项: ${DELETE_DATA:-<unset>}"
+
+mkdir -p "${TRIM_PKGVAR}" 2>/dev/null || true
+LOG="${TRIM_PKGVAR}/uninstall.log"
+: >> "${LOG}" 2>/dev/null || true
+echo "===== uninstall_callback $(date) delete_data=${DELETE_DATA:-<unset>} =====" >> "${LOG}"
+
+# 数据根目录：与 cmd/main 完全相同的解析规则（share 才是数据的家）。
+# 本脚本自带一份 resolve_share_root：卸载阶段 cmd/ 可能已被清，不能 source 别的文件。
+resolve_share_root() {
+  local _app="$1" _name="$2" _paths="$3" _c
+  for _c in "/var/apps/${_app}/shares/${_name}" "${_paths%%:*}"; do
+    [ -n "${_c}" ] || continue
+    case "${_c}" in /vol0/*) continue ;; esac
+    if [ -d "${_c}" ] || mkdir -p "${_c}" 2>/dev/null; then
+      printf '%s\n' "${_c}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+DATA_ROOT="$(resolve_share_root "${APP_NAME}" "${SHARE_NAME}" "${TRIM_DATA_SHARE_PATHS:-}")"
+DATA_ROOT="${DATA_ROOT:-/var/apps/${APP_NAME}/shares/${SHARE_NAME}}"
+
+# 1) 先停进程，避免进程还在写（顺序错了会写出半截文件）
+MAIN_SELF="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/main"
+[ -f "${MAIN_SELF}" ] || MAIN_SELF="${TRIM_APPDEST:-/nonexistent}/cmd/main"
+if [ -f "${MAIN_SELF}" ]; then
+  bash "${MAIN_SELF}" stop >> "${LOG}" 2>&1 || true
+  echo "service stopped via ${MAIN_SELF}" >> "${LOG}"
+else
+  echo "WARN: 找不到 cmd/main，跳过 stop" >> "${LOG}"
+fi
+
+# 2) 按用户选择处理数据
+case "${DELETE_DATA}" in
+  "true")
+    # 只清 share 里的内容，保留目录本身与属主，方便将来重装直接复用。
+    # 用 find 而不是 `rm -rf "$D"/*`：通配不匹配 . 开头的隐藏文件，会留垃圾。
+    echo "卸载前清除 share 数据内容：${DATA_ROOT}"
+    if [ -n "${DATA_ROOT}" ] && [ -d "${DATA_ROOT}" ]; then
+      find "${DATA_ROOT}" -mindepth 1 -maxdepth 1 -exec rm -rf {} + \
+        && echo "share 内容清除成功" || echo "清除失败" >&2
+    else
+      echo "share 数据目录不存在，无需清除"
+    fi
+    echo "share 内容已清除: ${DATA_ROOT}" >> "${LOG}"
+    # 日志/PID 属 @appdata，随应用一并清除（不可恢复）
+    if [ -n "${TRIM_PKGVAR:-}" ] && [ -d "${TRIM_PKGVAR}" ]; then
+      rm -rf "${TRIM_PKGVAR}"
+    fi
+    ;;
+  "false"|*)
+    echo "保留数据文件（share 数据与 @appdata 配置均不动，可随时重装恢复）"
+    echo "kept data: ${DATA_ROOT}" >> "${LOG}"
+    ;;
+esac
+
+exit 0
