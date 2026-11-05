@@ -4,13 +4,14 @@ import { useRouter } from 'vue-router'
 import Icon from '../components/Icon.vue'
 import PageHead from '../components/PageHead.vue'
 import StatusPill from '../components/StatusPill.vue'
-import Sparkline from '../components/Sparkline.vue'
+import TrafficChart from '../components/TrafficChart.vue'
 import SpineSvg from '../components/SpineSvg.vue'
 import SkeletonBlock from '../components/SkeletonBlock.vue'
 import EmptyState from '../components/EmptyState.vue'
 import NoticeBar from '../components/NoticeBar.vue'
 import { api } from '../lib/client'
 import { apiErrorMessage } from '../lib/api'
+import { getCachedRoutes, routeCacheKey, setCachedRoutes } from '../lib/route-cache'
 import { formatNumber, formatRelative, shortId, uptimeParts, uptimeSeconds } from '../lib/format'
 import { toast } from '../lib/toast'
 import { activityIcon, app, connectTunnel, disconnectTunnel, noteError, refreshActivity, refreshOverview, runtimeStatusMeta, setRouteCount } from '../stores/state'
@@ -22,8 +23,10 @@ const now = ref(Date.now())
 const routes = ref<Route[]>([])
 const routesFor = ref('')
 const routesError = ref('')
+const routesLoading = ref(false)
 const loading = ref(!app.overview)
 const pageError = ref('')
+let routesRequest = 0
 
 const rt = computed(() => app.runtime)
 const metrics = computed(() => app.metrics)
@@ -75,23 +78,36 @@ const successRate = computed(() => {
 })
 
 const bars = computed(() => {
-  const values = app.metricSamples.map((sample) => sample.rttMs).filter((v): v is number => v !== null && v !== undefined)
-  if (values.length < 2) return []
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const span = max - min || 1
-  return values.slice(-14).map((value) => Math.round(58 + ((value - min) / span) * 38))
+  const samples = app.metricSamples
+  const rates: number[] = []
+  for (let index = 1; index < samples.length; index += 1) {
+    const previous = samples[index - 1]
+    const current = samples[index]
+    if (previous.requests === null || current.requests === null) continue
+    const requests = current.requests - previous.requests
+    if (requests <= 0) continue
+    const errors =
+      previous.errors !== null && current.errors !== null ? Math.max(0, current.errors - previous.errors) : 0
+    rates.push(Math.max(0, Math.min(100, ((requests - errors) / requests) * 100)))
+  }
+  if (!rates.length) return []
+  const slots = Array.from({ length: 14 }, () => 0)
+  const recent = rates.slice(-14)
+  const offset = 14 - recent.length
+  recent.forEach((rate, index) => {
+    slots[offset + index] = Math.max(8, Math.round(rate))
+  })
+  return slots
 })
 
-const sparkRequests = computed(() =>
-  app.metricSamples.map((sample) => sample.requests).filter((v): v is number => v !== null && v !== undefined),
-)
-const sparkLatency = computed(() =>
-  app.metricSamples.map((sample) => sample.rttMs).filter((v): v is number => v !== null && v !== undefined),
-)
-const sparkErrors = computed(() =>
-  app.metricSamples.map((sample) => sample.errors).filter((v): v is number => v !== null && v !== undefined),
-)
+const sampleWindow = computed(() => {
+  const samples = app.metricSamples
+  if (samples.length < 2) return 0
+  const first = Date.parse(samples[0].sampledAt)
+  const last = Date.parse(samples[samples.length - 1].sampledAt)
+  if (Number.isNaN(first) || Number.isNaN(last)) return 0
+  return Math.max(1, Math.round((last - first) / 1000))
+})
 
 const activityItems = computed(() =>
   app.activity.slice(0, 4).map((item) => ({
@@ -104,35 +120,70 @@ const activityItems = computed(() =>
 const nasAddress = computed(() => window.location.hostname || '本机')
 const hostName = computed(() => window.location.hostname || '本机')
 
-async function loadRoutes() {
+function applyRoutes(tunnelId: string, list: Route[]) {
+  routes.value = list
+  routesFor.value = tunnelId
+  routesError.value = ''
+  if (connected.value) setRouteCount(list.length)
+}
+
+async function loadRoutes(force = false) {
   const tunnelId = rt.value?.tunnelId
   if (!tunnelId) {
+    routesRequest += 1
+    routesLoading.value = false
     routes.value = []
     routesFor.value = ''
+    routesError.value = ''
     return
   }
+  const key = routeCacheKey(app.settings?.accountId, tunnelId)
+  if (!force) {
+    const cached = getCachedRoutes(key)
+    if (cached) {
+      routesRequest += 1
+      routesLoading.value = false
+      applyRoutes(tunnelId, cached.routes)
+      return
+    }
+  }
+  const requestId = ++routesRequest
+  routesLoading.value = true
+  routesError.value = ''
   try {
     const result = await api.routes(tunnelId)
-    if (rt.value?.tunnelId !== tunnelId) return
-    routes.value = result.routes
-    routesFor.value = tunnelId
-    routesError.value = ''
-    if (connected.value) setRouteCount(result.routes.length)
+    if (requestId !== routesRequest || rt.value?.tunnelId !== tunnelId) return
+    setCachedRoutes(key, {
+      routes: result.routes,
+      catchAllService: result.catchAllService,
+      rawIngressCount: result.rawIngressCount,
+    })
+    applyRoutes(tunnelId, result.routes)
   } catch (err) {
+    if (requestId !== routesRequest) return
     routesError.value = apiErrorMessage(err)
+  } finally {
+    if (requestId === routesRequest) routesLoading.value = false
   }
 }
 
-async function load() {
+async function load(forceRoutes = false) {
   loading.value = !app.overview
-  pageError.value = (await refreshOverview()) || ''
+  const routesTask = loadRoutes(forceRoutes)
   void refreshActivity()
-  await loadRoutes()
+  pageError.value = (await refreshOverview()) || ''
+  await routesTask
   loading.value = false
 }
 
 function onRefresh() {
-  void load()
+  void load(true)
+}
+
+async function refreshRoutes() {
+  if (!rt.value?.tunnelId) return
+  await loadRoutes(true)
+  if (!routesError.value) toast('路由数据已刷新', 'success')
 }
 
 async function onConnect() {
@@ -198,17 +249,13 @@ watch(
 watch(
   () => state.value,
   (value) => {
-    if (value === 'connected') {
-      void refreshOverview()
-      void loadRoutes()
-    }
+    if (value === 'connected') void refreshOverview()
   },
 )
 </script>
 
 <template>
   <PageHead
-    eyebrow="控制台"
     title="概览"
     sub="一条隧道，把 NAS 上的服务安全地带到公网。状态、路由与日志都在一个地方。"
   >
@@ -217,7 +264,7 @@ watch(
         <Icon name="refresh" />
         刷新
       </button>
-      <button class="btn primary" type="button" @click="addRoute">
+      <button class="btn" :class="connected ? 'primary' : 'ghost'" type="button" @click="addRoute">
         <Icon name="plus" />
         添加路由
       </button>
@@ -357,11 +404,6 @@ watch(
             <span class="q-copy"><strong>新增路由</strong><small>域名 → 内网服务</small></span>
             <span class="q-chevron"><Icon name="chevron-right" /></span>
           </button>
-          <button class="quick-item" type="button" @click="$router.push('/logs')">
-            <span class="q-icon"><Icon name="terminal" /></span>
-            <span class="q-copy"><strong>实时日志</strong><small>查看连接与转发事件</small></span>
-            <span class="q-chevron"><Icon name="chevron-right" /></span>
-          </button>
           <div class="quick-health">
             <div class="qh-top">
               <span>请求成功率</span>
@@ -384,37 +426,56 @@ watch(
         </aside>
       </div>
 
-      <div class="metric-row">
-        <section class="card metric reveal" style="--i: 3">
-          <div class="metric-label"><Icon name="branch" />活跃路由</div>
-          <div class="metric-value">{{ formatNumber(routeCount) }}</div>
-          <div class="metric-foot"><span class="trend flat">{{ rt?.tunnelId ? '当前隧道' : '无活动隧道' }}</span></div>
-        </section>
-        <section class="card metric reveal" style="--i: 4">
-          <div class="metric-label"><Icon name="activity" />请求总数</div>
-          <div class="metric-value" :class="{ 'is-null': metrics?.requests === null }">
-            {{ formatNumber(metrics?.requests) }}
+      <div class="stats-grid">
+        <section class="card traffic-card reveal" style="--i: 3">
+          <div class="traffic-head">
+            <div>
+              <h3>请求趋势</h3>
+              <p>每 5 秒采样{{ sampleWindow ? ` · 最近 ${sampleWindow} 秒` : '' }}</p>
+            </div>
+            <div class="traffic-summary">
+              <strong>{{ formatNumber(metrics?.requests) }}</strong>
+              <small>累计请求</small>
+            </div>
           </div>
-          <div class="metric-foot"><span class="trend flat">metrics · 累计</span></div>
-          <Sparkline :values="sparkRequests" />
+          <TrafficChart :samples="app.metricSamples" />
         </section>
-        <section class="card metric reveal" style="--i: 5">
-          <div class="metric-label"><Icon name="zap" />平均延迟</div>
-          <div class="metric-value" :class="{ 'is-null': latencyText === null }">
-            <template v-if="latencyText !== null">{{ latencyText }}<small>ms</small></template>
-            <template v-else>—</template>
+
+        <aside class="card stat-card reveal" style="--i: 4">
+          <div class="card-head">
+            <div>
+              <h3>运行数据</h3>
+              <p>来自 cloudflared metrics</p>
+            </div>
           </div>
-          <div class="metric-foot">
-            <span class="trend flat">{{ latencyText !== null ? 'Edge RTT' : '无连接' }}</span>
+          <div class="stat-list">
+            <div class="stat-row">
+              <span class="stat-label">
+                活跃路由
+                <small>{{ rt?.tunnelId ? '当前隧道' : '无活动隧道' }}</small>
+              </span>
+              <strong class="stat-value">{{ formatNumber(routeCount) }}</strong>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">
+                平均延迟
+                <small>{{ latencyText !== null ? 'Edge RTT' : '无连接' }}</small>
+              </span>
+              <strong class="stat-value" :class="{ 'is-null': latencyText === null }">
+                {{ latencyText !== null ? latencyText : '—' }}<small v-if="latencyText !== null">ms</small>
+              </strong>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">
+                错误请求
+                <small>{{ metrics?.connections ? `${metrics.connections} 条连接` : '无活动连接' }}</small>
+              </span>
+              <strong class="stat-value" :class="{ 'is-null': metrics?.errors === null }">
+                {{ formatNumber(metrics?.errors) }}
+              </strong>
+            </div>
           </div>
-          <Sparkline :values="sparkLatency" green />
-        </section>
-        <section class="card metric reveal" style="--i: 6">
-          <div class="metric-label"><Icon name="alert" />错误请求</div>
-          <div class="metric-value" :class="{ 'is-null': metrics?.errors === null }">{{ formatNumber(metrics?.errors) }}</div>
-          <div class="metric-foot"><span class="trend flat">{{ metrics?.connections ? `${metrics.connections} 条连接` : '无活动连接' }}</span></div>
-          <Sparkline :values="sparkErrors" green />
-        </section>
+        </aside>
       </div>
 
       <div class="lower-grid">
@@ -424,9 +485,35 @@ watch(
               <h3>路由</h3>
               <p>{{ routeCount }} 条规则 · 首条匹配生效</p>
             </div>
-            <button class="link" type="button" @click="openRoutes">全部路由 →</button>
+            <div class="card-head-tools">
+              <button
+                class="icon-btn"
+                :class="{ 'is-spinning': routesLoading }"
+                type="button"
+                aria-label="刷新路由"
+                title="刷新路由"
+                :disabled="routesLoading || !rt?.tunnelId"
+                @click="refreshRoutes"
+              >
+                <Icon name="refresh" />
+              </button>
+              <button class="link" type="button" @click="openRoutes">全部路由 →</button>
+            </div>
           </div>
-          <div v-if="routesError" class="table-empty">{{ routesError }}</div>
+          <div
+            v-if="routesLoading && routesFor !== rt?.tunnelId"
+            class="route-table-skeleton"
+            role="status"
+            aria-label="正在加载路由"
+          >
+            <div v-for="index in 3" :key="index" class="route-skeleton-row" aria-hidden="true">
+              <SkeletonBlock height="14px" width="72%" />
+              <SkeletonBlock height="13px" width="84%" />
+              <SkeletonBlock height="12px" width="28px" />
+              <SkeletonBlock height="22px" width="22px" />
+            </div>
+          </div>
+          <div v-else-if="routesError" class="table-empty">{{ routesError }}</div>
           <div v-else-if="!routes.length" class="table-empty">
             当前隧道还没有路由。添加一条域名 → 内网服务的映射。
           </div>

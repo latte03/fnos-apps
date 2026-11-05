@@ -24,7 +24,6 @@ const props = withDefaults(
 const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
 const dotsId = `spineDots-${uid}`
 const lineId = `spineLine-${uid}`
-const glowId = `nodeGlow-${uid}`
 
 const badgeLabel = computed(() => {
   const parts: string[] = []
@@ -59,13 +58,6 @@ const edgeSub = computed(() => {
         <stop offset=".5" stop-color="var(--teal)" stop-opacity=".8" />
         <stop offset="1" stop-color="var(--accent)" stop-opacity=".55" />
       </linearGradient>
-      <filter :id="glowId" x="-80%" y="-80%" width="260%" height="260%">
-        <feGaussianBlur stdDeviation="7" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
     </defs>
     <rect x="0" y="0" width="560" height="320" :fill="`url(#${dotsId})`" opacity=".55" />
     <path d="M126 160 L 434 160" :stroke="`url(#${lineId})`" stroke-width="1.5" stroke-dasharray="5 7" opacity=".8" />
@@ -95,7 +87,7 @@ const edgeSub = computed(() => {
     </g>
     <g class="node node-edge" transform="translate(280 160)">
       <circle r="58" class="node-ring" opacity=".45" />
-      <circle r="40" class="node-core" :filter="`url(#${glowId})`" />
+      <circle r="40" class="node-core" />
       <g transform="translate(-11 -11) scale(0.94)" class="node-icon">
         <path d="M17.5 19a4.5 4.5 0 0 0 .4-8.98A7 7 0 0 0 4.2 12.5 4 4 0 0 0 6 20h11.5Z" />
       </g>

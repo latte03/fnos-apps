@@ -154,7 +154,7 @@ Status codes: 200, 201, 202, 204, 400, 401, 404, 409, 412, 502, 504.
 
 `GET /health` →
 ```json
-{"status":"ok","version":"2026.10.7-5","demo":false,
+{"status":"ok","version":"2026.10.7-10","demo":false,
  "startedAt":"2026-11-05T12:00:00Z","cloudflared":{"installed":true,"version":"2026.10.7"}}
 ```
 

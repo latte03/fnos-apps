@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import Icon from './components/Icon.vue'
 import ToastHost from './components/ToastHost.vue'
+import appIcon from './assets/brand/app-icon.png'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import NoticeBar from './components/NoticeBar.vue'
 import { toggleTheme, resolvedTheme } from './lib/theme'
@@ -112,6 +113,7 @@ watch(
     closeSidebar()
     document.title = `${pageTitle.value} · Cloudflare Tunnel`
     void nextTick(() => {
+      if (pageEl.value) pageEl.value.scrollTop = 0
       restartPageAnimation()
       pageEl.value?.focus({ preventScroll: true })
     })
@@ -147,24 +149,7 @@ function retryBoot() {
   <div class="app" :class="{ 'sidebar-open': sidebarOpen }">
     <aside class="sidebar" id="sidebar">
       <RouterLink class="brand" to="/overview" aria-label="Tunnel 首页" @click="closeSidebar">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 40 40" fill="none">
-            <rect width="40" height="40" rx="12" fill="url(#brandGrad)" />
-            <path
-              d="M11 23.5c3.2-7.2 6.9-7.2 9 0 2.1 7.2 5.8 7.2 9 0"
-              stroke="#fff"
-              stroke-width="2.4"
-              stroke-linecap="round"
-            />
-            <circle cx="20" cy="28" r="2.2" fill="#fff" />
-            <defs>
-              <linearGradient id="brandGrad" x1="4" y1="2" x2="37" y2="39" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#3B6CFF" />
-                <stop offset="1" stop-color="#0E9384" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
+        <img class="brand-mark" :src="appIcon" alt="" aria-hidden="true" />
         <span class="brand-copy">
           <strong>Tunnel</strong>
           <small>for fnOS</small>
@@ -259,39 +244,41 @@ function retryBoot() {
         </div>
       </header>
 
-      <div v-if="app.sessionExpired" class="app-notice">
-        <NoticeBar tone="danger" icon="alert" title="会话已过期">
-          服务重启会失效浏览器会话。刷新页面即可建立新的会话，正在进行的操作需要重新提交。
-          <template #action>
-            <button class="btn small ghost" type="button" @click="reloadPage">重新加载</button>
-          </template>
-        </NoticeBar>
-      </div>
-      <div v-else-if="app.sse === 'closed' && !app.booting" class="app-notice">
-        <NoticeBar tone="warning" icon="alert" title="实时连接已断开">
-          正在自动重连（第 {{ app.sseAttempt }} 次）。状态与日志可能暂时不是最新的。
-          <template #action>
-            <button class="btn small ghost" type="button" @click="startEvents">立即重试</button>
-          </template>
-        </NoticeBar>
-      </div>
-
       <main ref="pageEl" class="page" id="page" tabindex="-1">
-        <div v-if="app.bootError" class="card boot-error reveal" style="--i: 0">
-          <div class="card-head">
-            <div>
-              <h3>无法连接到应用服务</h3>
-              <p>{{ app.bootError }}</p>
+        <div v-if="app.sessionExpired" class="app-notice">
+          <NoticeBar tone="danger" icon="alert" title="会话已过期">
+            服务重启会失效浏览器会话。刷新页面即可建立新的会话，正在进行的操作需要重新提交。
+            <template #action>
+              <button class="btn small ghost" type="button" @click="reloadPage">重新加载</button>
+            </template>
+          </NoticeBar>
+        </div>
+        <div v-else-if="app.sse === 'closed' && !app.booting" class="app-notice">
+          <NoticeBar tone="warning" icon="alert" title="实时连接已断开">
+            正在自动重连（第 {{ app.sseAttempt }} 次）。状态与日志可能暂时不是最新的。
+            <template #action>
+              <button class="btn small ghost" type="button" @click="startEvents">立即重试</button>
+            </template>
+          </NoticeBar>
+        </div>
+
+        <div class="page-inner">
+          <div v-if="app.bootError" class="card boot-error reveal" style="--i: 0">
+            <div class="card-head">
+              <div>
+                <h3>无法连接到应用服务</h3>
+                <p>{{ app.bootError }}</p>
+              </div>
+            </div>
+            <div class="card-foot">
+              <button class="btn primary" type="button" @click="retryBoot">
+                <Icon name="refresh" />
+                重试
+              </button>
             </div>
           </div>
-          <div class="card-foot">
-            <button class="btn primary" type="button" @click="retryBoot">
-              <Icon name="refresh" />
-              重试
-            </button>
-          </div>
+          <RouterView v-else />
         </div>
-        <RouterView v-else />
       </main>
     </div>
   </div>

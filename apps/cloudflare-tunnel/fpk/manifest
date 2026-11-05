@@ -1,5 +1,5 @@
 appname                    = cloudflare-tunnel
-version                    = 2026.10.7-5
+version                    = 2026.10.7-10
 display_name               = Cloudflare Tunnel
 desc                       = Go 后端 + 内嵌 SPA + cloudflared 进程守护，用 Cloudflare API 管理 token 型隧道，服务端口 18960
 platform                   = x86
@@ -15,4 +15,4 @@ service_port               = 18960
 desktop_uidir              = ui
 desktop_applaunchname      = cloudflare-tunnel.panel
 disable_authorization_path = false
-changelog                  = 2026.10.7-5：内置 Maple Mono NF CN（子集）与 MiSans 字体；概览右栏等宽；日志自定义滚动条；设置页底部固定保存条；Toast 移到右上角并去掉进度条。2026.10.7-4：路由页缓存、自动保存与手动刷新；暗色主按钮白字；长隧道名截断。2026.10.7-3：整体字号 +2px（最小 12px）。2026.10.7-2：修复账户级 API Token 验证失败（改用账户级 tokens/verify）。2026.10.7-1：首个版本。Cloudflare Tunnel 隧道管理（账号/隧道/ingress/自动 CNAME）、cloudflared 进程守护与实时日志、API Key；内置 cloudflared 2026.10.7（Apache-2.0）。
+changelog                  = 2026.10.7-10：页头去掉 eyebrow，路由页更名「路由 · Ingress 规则」；概览快捷操作精简为两项、成功率迷你柱固定 14 格；滚动容器下沉到页面主体、顶栏覆盖其上，切换页面不再抖动；统计卡列宽与概览对齐，account-chip 内边距调整。2026.10.7-9：概览改为请求趋势图与紧凑运行数据；全站移除色晕、渐变与发光，字重收敛到大写标签去除；行内连接按钮降为 ghost。2026.10.7-8：三处原生下拉改为自绘 Select（主题、键盘与选中态统一）；隧道选择菜单加入展开动效。2026.10.7-7：概览路由缓存、独立刷新与骨架屏；account-chip 左侧内边距调整。2026.10.7-6：侧边栏与 favicon 改用打包图标；全站滚动条统一为细窄自绘样式。2026.10.7-5：内置 Maple Mono NF CN（子集）与 MiSans 字体；概览右栏等宽；日志自定义滚动条；设置页底部固定保存条；Toast 移到右上角并去掉进度条。2026.10.7-4：路由页缓存、自动保存与手动刷新；暗色主按钮白字；长隧道名截断。2026.10.7-3：整体字号 +2px（最小 12px）。2026.10.7-2：修复账户级 API Token 验证失败（改用账户级 tokens/verify）。2026.10.7-1：首个版本。Cloudflare Tunnel 隧道管理（账号/隧道/ingress/自动 CNAME）、cloudflared 进程守护与实时日志、API Key；内置 cloudflared 2026.10.7（Apache-2.0）。

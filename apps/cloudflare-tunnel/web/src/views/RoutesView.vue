@@ -1,15 +1,3 @@
-<script lang="ts">
-import type { Route as RouteModel } from '../types'
-
-interface CachedRoutes {
-  routes: RouteModel[]
-  catchAllService: string
-  rawIngressCount: number
-}
-
-const routesCache = new Map<string, CachedRoutes>()
-</script>
-
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -23,6 +11,7 @@ import SkeletonBlock from '../components/SkeletonBlock.vue'
 import StatusPill from '../components/StatusPill.vue'
 import { api } from '../lib/client'
 import { apiErrorMessage } from '../lib/api'
+import { cloneRoutes, getCachedRoutes, routeCacheKey, setCachedRoutes, type CachedRoutes } from '../lib/route-cache'
 import { confirmDialog } from '../lib/dialog'
 import type { DnsUiState } from '../lib/dns'
 import { shortId } from '../lib/format'
@@ -157,10 +146,6 @@ function wireRoute(item: Route): Route {
   return { hostname: item.hostname, path: item.path || '/', service: item.service }
 }
 
-function cloneRoutes(items: Route[]): Route[] {
-  return items.map((item) => ({ hostname: item.hostname, path: item.path || '/', service: item.service }))
-}
-
 function resetDnsState() {
   for (const key of Object.keys(dns)) delete dns[key]
   for (const key of Object.keys(dnsDetail)) delete dnsDetail[key]
@@ -169,7 +154,7 @@ function resetDnsState() {
 }
 
 function routesCacheKey(tunnelId: string) {
-  return `${app.settings?.accountId || ''}:${tunnelId}`
+  return routeCacheKey(app.settings?.accountId, tunnelId)
 }
 
 function applyRoutesData(tunnelId: string, data: CachedRoutes) {
@@ -179,8 +164,8 @@ function applyRoutesData(tunnelId: string, data: CachedRoutes) {
   savedCatchAll.value = catchAll.value
   rawIngressCount.value = data.rawIngressCount
   loaded.value = true
-  routesCache.set(routesCacheKey(tunnelId), {
-    routes: cloneRoutes(data.routes),
+  setCachedRoutes(routesCacheKey(tunnelId), {
+    routes: data.routes,
     catchAllService: catchAll.value,
     rawIngressCount: data.rawIngressCount,
   })
@@ -190,7 +175,7 @@ function applyRoutesData(tunnelId: string, data: CachedRoutes) {
 async function loadRoutes(tunnelId = selectedId.value, force = false) {
   if (!tunnelId) return
   if (!force) {
-    const cached = routesCache.get(routesCacheKey(tunnelId))
+    const cached = getCachedRoutes(routesCacheKey(tunnelId))
     if (cached) {
       selectedId.value = tunnelId
       loading.value = false
@@ -443,8 +428,8 @@ async function flushSave() {
       draft.value = cloneRoutes(result.routes)
       catchAll.value = result.catchAllService || payloadCatchAll
     }
-    routesCache.set(routesCacheKey(tunnelId), {
-      routes: cloneRoutes(result.routes),
+    setCachedRoutes(routesCacheKey(tunnelId), {
+      routes: result.routes,
       catchAllService: result.catchAllService || payloadCatchAll,
       rawIngressCount: result.rawIngressCount,
     })
@@ -558,8 +543,7 @@ onBeforeUnmount(() => {
 
 <template>
   <PageHead
-    eyebrow="路由"
-    title="Ingress 规则"
+    title="路由 · Ingress 规则"
     sub="一个域名对应一个内网服务。规则按顺序匹配，首条命中后不再继续；最后一条为兜底。"
   >
     <template #actions>
@@ -573,7 +557,7 @@ onBeforeUnmount(() => {
         <Icon v-else name="refresh" />
         {{ loading ? '刷新中' : '刷新' }}
       </button>
-      <button class="btn ghost" type="button" @click="openAdd">
+      <button class="btn primary" type="button" @click="openAdd">
         <Icon name="plus" />
         添加路由
       </button>
@@ -627,30 +611,32 @@ onBeforeUnmount(() => {
           </span>
           <span class="chevron"><Icon name="chevron-down" /></span>
         </button>
-        <div v-if="pickerOpen" class="picker-menu" role="listbox" aria-label="隧道列表">
-          <button
-            v-for="tunnel in app.tunnels"
-            :key="tunnel.id"
-            class="picker-item"
-            type="button"
-            role="option"
-            :aria-selected="tunnel.id === selectedId"
-            :class="{ 'is-selected': tunnel.id === selectedId }"
-            @click="selectTunnel(tunnel.id)"
-          >
-            <span
-              class="status-dot"
-              :class="statusMetaFor(tunnelDisplayState(tunnel)).dot"
-              aria-hidden="true"
-            ></span>
-            <span class="picker-copy">
-              <strong>{{ tunnel.name }}</strong>
-              <small class="mono">{{ shortId(tunnel.id) }}</small>
-            </span>
-            <span v-if="tunnel.id === liveTunnelId" class="pill info">运行中</span>
-            <Icon v-if="tunnel.id === selectedId" name="check" />
-          </button>
-        </div>
+        <Transition name="select-pop">
+          <div v-if="pickerOpen" class="picker-menu" role="listbox" aria-label="隧道列表">
+            <button
+              v-for="tunnel in app.tunnels"
+              :key="tunnel.id"
+              class="picker-item"
+              type="button"
+              role="option"
+              :aria-selected="tunnel.id === selectedId"
+              :class="{ 'is-selected': tunnel.id === selectedId }"
+              @click="selectTunnel(tunnel.id)"
+            >
+              <span
+                class="status-dot"
+                :class="statusMetaFor(tunnelDisplayState(tunnel)).dot"
+                aria-hidden="true"
+              ></span>
+              <span class="picker-copy">
+                <strong>{{ tunnel.name }}</strong>
+                <small class="mono">{{ shortId(tunnel.id) }}</small>
+              </span>
+              <span v-if="tunnel.id === liveTunnelId" class="pill info">运行中</span>
+              <Icon v-if="tunnel.id === selectedId" name="check" />
+            </button>
+          </div>
+        </Transition>
       </div>
       <StatusPill :label="`${draft.length} 条规则`" kind="info" />
       <span class="micro">自动 DNS 已开启</span>

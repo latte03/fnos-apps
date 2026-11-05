@@ -75,7 +75,7 @@ type Server struct {
 // New builds the HTTP layer. Engine may be attached later with SetEngine.
 func New(opts Options) *Server {
 	if opts.Version == "" {
-		opts.Version = "2026.10.7-5"
+		opts.Version = "2026.10.7-10"
 	}
 	if opts.StartedAt.IsZero() {
 		opts.StartedAt = time.Now()

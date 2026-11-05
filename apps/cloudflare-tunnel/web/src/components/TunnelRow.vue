@@ -63,7 +63,7 @@ const micro = computed(() => {
       </button>
       <button
         v-else
-        class="btn small primary"
+        class="btn small ghost"
         type="button"
         :disabled="busy"
         @click="emit('connect', tunnel)"

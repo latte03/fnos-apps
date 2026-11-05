@@ -212,7 +212,6 @@ onBeforeUnmount(() => {
 
 <template>
   <PageHead
-    eyebrow="网络"
     title="隧道"
     sub="创建、连接和切换 Cloudflare Tunnel。同一时间只保留一条活动连接，切换时会先断开当前隧道。"
   >

@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	appVersion    = "2026.10.7-5"
+	appVersion    = "2026.10.7-10"
 	demoVersion   = "2026.10.7"
 	bootDelay     = 200 * time.Millisecond
 	stopTimeout   = 12 * time.Second

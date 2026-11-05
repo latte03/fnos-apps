@@ -30,20 +30,20 @@
 }
 .notice-bar > .icon { flex: none; width: 16px; height: 16px; margin-top: 1px; }
 .notice-bar .notice-copy { flex: 1; min-width: 0; }
-.notice-bar .notice-copy strong { display: block; color: var(--ink); font-weight: 800; }
+.notice-bar .notice-copy strong { display: block; color: var(--ink); font-weight: 600; }
 .notice-bar.info {
   border-color: color-mix(in srgb, var(--accent) 20%, var(--line));
-  background: linear-gradient(90deg, var(--accent-soft), transparent 78%);
+  background: var(--accent-soft);
 }
 .notice-bar.info > .icon { color: var(--accent); }
 .notice-bar.warning {
   border-color: color-mix(in srgb, var(--amber) 26%, var(--line));
-  background: linear-gradient(90deg, var(--amber-soft), transparent 78%);
+  background: var(--amber-soft);
 }
 .notice-bar.warning > .icon { color: var(--amber); }
 .notice-bar.danger {
   border-color: color-mix(in srgb, var(--red) 26%, var(--line));
-  background: linear-gradient(90deg, var(--red-soft), transparent 78%);
+  background: var(--red-soft);
 }
 .notice-bar.danger > .icon { color: var(--red); }
 .notice-bar > .btn { flex: none; align-self: center; }
@@ -86,7 +86,7 @@
   color: var(--ink-3);
 }
 .empty-icon .icon { width: 20px; height: 20px; }
-.empty-title { font-size: 15px; font-weight: 800; color: var(--ink-2); }
+.empty-title { font-size: 15px; font-weight: 600; color: var(--ink-2); }
 .table-empty.is-big .empty-title { font-size: 18px; color: var(--ink); }
 .empty-message { margin: 5px auto 0; max-width: 420px; font-size: 14px; color: var(--ink-3); line-height: 1.6; }
 .empty-actions { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
@@ -113,10 +113,10 @@
   background: var(--accent-soft);
   color: var(--accent-ink);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
 }
 .setup-steps li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.setup-steps strong { font-size: 14px; font-weight: 700; }
+.setup-steps strong { font-size: 14px; font-weight: 500; }
 .setup-steps small { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
 
 /* ---------- tunnel picker ---------- */
@@ -132,6 +132,7 @@
   left: 0;
   z-index: 45;
   width: 290px;
+  transform-origin: top left;
   max-height: 320px;
   overflow: auto;
   padding: 6px;
@@ -159,13 +160,12 @@
 .picker-item.is-selected { background: var(--accent-soft); }
 .picker-item .icon { color: var(--accent); width: 15px; height: 15px; flex: none; }
 .picker-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
-.picker-copy strong { font-size: 14px; font-weight: 700; }
+.picker-copy strong { font-size: 14px; font-weight: 500; }
 .picker-copy small { font-size: 12px; color: var(--ink-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .picker-item .pill { height: 20px; font-size: 12px; flex: none; }
 
 /* ---------- form polish ---------- */
 .input::placeholder,
-.select::placeholder,
 textarea::placeholder,
 .search input::placeholder { color: var(--ink-4); }
 
@@ -295,12 +295,10 @@ textarea::placeholder,
 .auto-scroll-row { width: auto !important; gap: 8px; font-size: 12px; color: var(--ink-3); justify-content: flex-start; }
 .live-dot.is-paused {
   background: var(--amber);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 13%, transparent);
   animation: none;
 }
 
 /* ---------- overview extras ---------- */
-.metric-value.is-null { color: var(--ink-4); }
 .qh-empty { margin-top: 11px; font-size: 12px; color: var(--ink-4); }
 .hero .uptime { white-space: nowrap; }
 
@@ -334,7 +332,7 @@ textarea::placeholder,
   .icon-btn { width: 42px; height: 42px; }
   .btn.small { min-height: 38px; }
   .switch::before { content: ""; position: absolute; inset: -11px -3px; }
-  .search input, .input, .select { height: 42px; }
+  .search input, .input, .select-trigger { height: 42px; }
   .segmented button { height: 34px; }
   .quick-item { padding: 12px 10px; }
 }
@@ -364,7 +362,7 @@ textarea::placeholder,
   .page-head h1 { font-size: 29px; }
   .hero h2 { flex-wrap: wrap; }
   .hero-actions { gap: 6px; }
-  .metric-row { gap: 10px; }
+  .stats-grid { gap: 10px; }
   .notice-bar { font-size: 13px; }
   .table-empty.is-big { padding: 48px 16px; }
 }

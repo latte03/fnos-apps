@@ -154,7 +154,6 @@ onBeforeUnmount(() => {
 
 <template>
   <PageHead
-    eyebrow="集成"
     title="接入"
     sub="通过本机 HTTP API 把隧道能力接进其他应用。凭证按用途命名，可随时吊销。"
   />

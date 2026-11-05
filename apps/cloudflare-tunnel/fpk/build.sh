@@ -2,7 +2,7 @@
 # build.sh — cloudflare-tunnel 全流程构建（web SPA → Go server → cloudflared → fnpack）
 #
 # 用法（在 fpk/ 目录下）:
-#   ./build.sh                                   # 产物 dist/cloudflare-tunnel-2026.10.7-5-x86.fpk
+#   ./build.sh                                   # 产物 dist/cloudflare-tunnel-2026.10.7-10-x86.fpk
 #   ./build.sh /path/to/out.fpk                  # 指定产物路径
 #   GO=/path/to/go ./build.sh
 #   PNPM=/path/to/pnpm ./build.sh
@@ -27,7 +27,7 @@ WEB_DIR="$PRODUCT_DIR/web"
 
 APP_NAME="cloudflare-tunnel"
 DISPLAY_NAME="Cloudflare Tunnel"
-VERSION="2026.10.7-5"
+VERSION="2026.10.7-10"
 ARCH="x86"
 UPSTREAM_CLOUDFLARED_VERSION="2026.10.7"
 SERVER_BIN_NAME="cloudflare-tunnel-server"

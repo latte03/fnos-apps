@@ -4,6 +4,7 @@ import { onBeforeRouteLeave } from 'vue-router'
 import Icon from '../components/Icon.vue'
 import PageHead from '../components/PageHead.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
+import SelectControl from '../components/SelectControl.vue'
 import SwitchControl from '../components/SwitchControl.vue'
 import NoticeBar from '../components/NoticeBar.vue'
 import SkeletonBlock from '../components/SkeletonBlock.vue'
@@ -48,6 +49,12 @@ const protocolOptions = [
   { value: 'http2', label: 'HTTP/2' },
 ]
 
+const edgeIpOptions = [
+  { value: 'auto' as EdgeIpVersion, label: '自动' },
+  { value: '4' as EdgeIpVersion, label: '仅 IPv4' },
+  { value: '6' as EdgeIpVersion, label: '仅 IPv6' },
+]
+
 const themeOptions = [
   { value: 'system', label: '跟随系统' },
   { value: 'light', label: '浅色' },
@@ -67,6 +74,14 @@ const maxLinesOptions = computed(() => {
     .filter((value) => Number.isFinite(value) && value > 0)
     .sort((a, b) => a - b)
 })
+
+const retentionItems = computed(() =>
+  retentionOptions.value.map((days) => ({ value: days, label: `${days} 天` })),
+)
+
+const maxLinesItems = computed(() =>
+  maxLinesOptions.value.map((lines) => ({ value: lines, label: lines.toLocaleString('en-US') })),
+)
 
 const accountError = computed(() => {
   if (!accountTouched.value) return ''
@@ -282,7 +297,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <PageHead eyebrow="配置" title="设置" sub="账户、连接行为、外观与日志保留。修改后需要保存。">
+  <PageHead title="设置" sub="账户、连接行为、外观与日志保留。修改后需要保存。">
     <template #actions>
       <span class="save-state" :class="{ 'is-dirty': dirty }">{{ dirty ? '有未保存的更改' : '已保存' }}</span>
       <button class="btn primary" type="button" :disabled="!dirty || saving" @click="save">
@@ -423,11 +438,12 @@ onBeforeUnmount(() => {
           <small>IPv6 可用时通常延迟更低；不确定时选自动。</small>
         </div>
         <div class="setting-control">
-          <select v-model="form.edgeIpVersion" class="select" style="min-width: 150px" aria-label="边缘 IP 版本">
-            <option value="auto">自动</option>
-            <option value="4">仅 IPv4</option>
-            <option value="6">仅 IPv6</option>
-          </select>
+          <SelectControl
+            v-model="form.edgeIpVersion"
+            :options="edgeIpOptions"
+            aria-label="边缘 IP 版本"
+            style="min-width: 150px"
+          />
         </div>
       </div>
       <div class="setting-row">
@@ -529,9 +545,12 @@ onBeforeUnmount(() => {
           <small>超过期限的日志文件会被清理（1–365 天）。</small>
         </div>
         <div class="setting-control">
-          <select v-model.number="form.logRetentionDays" class="select" style="min-width: 120px" aria-label="日志保留天数">
-            <option v-for="days in retentionOptions" :key="days" :value="days">{{ days }} 天</option>
-          </select>
+          <SelectControl
+            v-model="form.logRetentionDays"
+            :options="retentionItems"
+            aria-label="日志保留天数"
+            style="min-width: 120px"
+          />
         </div>
       </div>
       <div class="setting-row">
@@ -540,11 +559,12 @@ onBeforeUnmount(() => {
           <small>日志页面保留的最大行数（200–10,000）。</small>
         </div>
         <div class="setting-control">
-          <select v-model.number="form.maxLogLines" class="select" style="min-width: 120px" aria-label="内存行数">
-            <option v-for="lines in maxLinesOptions" :key="lines" :value="lines">
-              {{ lines.toLocaleString('en-US') }}
-            </option>
-          </select>
+          <SelectControl
+            v-model="form.maxLogLines"
+            :options="maxLinesItems"
+            aria-label="内存行数"
+            style="min-width: 120px"
+          />
         </div>
       </div>
     </section>

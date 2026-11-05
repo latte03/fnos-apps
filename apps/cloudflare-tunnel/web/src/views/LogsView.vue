@@ -180,7 +180,7 @@ function onToggleAuto(value: boolean) {
 </script>
 
 <template>
-  <PageHead eyebrow="诊断" title="运行日志" sub="来自 cloudflared 的实时输出。日志只在本地保留，不上传云端。">
+  <PageHead title="运行日志" sub="来自 cloudflared 的实时输出。日志只在本地保留，不上传云端。">
     <template #actions>
       <button class="btn ghost" type="button" @click="download">
         <Icon name="download" />
