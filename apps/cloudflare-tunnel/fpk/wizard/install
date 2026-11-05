@@ -5,7 +5,7 @@
       {
         "type": "tips",
         "label": "",
-        "helpText": "Cloudflare Tunnel 2026.10.7-3\n把内网服务通过 Cloudflare 隧道发布到公网，无需公网 IP、无需端口映射。\n\n• 账号 ID 与 API Token 不在安装向导里填写，安装完成后在应用页面「设置」中配置并验证。\n• API Token 需要的权限（Cloudflare 控制台 → My Profile → API Tokens → Create Token，或用「Edit Cloudflare Workers」之外的自定义模板）：\n    Account → Cloudflare Tunnel → Edit\n    Zone → DNS → Edit\n    Zone → Zone → Read\n• 应用数据保存在共享目录「cloudflare-tunnel」（config/settings.json、config/apikeys.json、data/state.json、data/activity.json），文件管理器可见，升级与重装不清数据。\n• 内置 cloudflared 2026.10.7（Apache-2.0），不需要额外安装。\n• 默认端口 18960，如与其它服务冲突可在下面修改。"
+        "helpText": "Cloudflare Tunnel 2026.10.7-5\n把内网服务通过 Cloudflare 隧道发布到公网，无需公网 IP、无需端口映射。\n\n• 账号 ID 与 API Token 不在安装向导里填写，安装完成后在应用页面「设置」中配置并验证。\n• API Token 需要的权限（Cloudflare 控制台 → My Profile → API Tokens → Create Token，或用「Edit Cloudflare Workers」之外的自定义模板）：\n    Account → Cloudflare Tunnel → Edit\n    Zone → DNS → Edit\n    Zone → Zone → Read\n• 应用数据保存在共享目录「cloudflare-tunnel」（config/settings.json、config/apikeys.json、data/state.json、data/activity.json），文件管理器可见，升级与重装不清数据。\n• 内置 cloudflared 2026.10.7（Apache-2.0），不需要额外安装。\n• 默认端口 18960，如与其它服务冲突可在下面修改。"
       },
       {
         "type": "text",

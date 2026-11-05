@@ -2,7 +2,7 @@
 # build.sh — cloudflare-tunnel 全流程构建（web SPA → Go server → cloudflared → fnpack）
 #
 # 用法（在 fpk/ 目录下）:
-#   ./build.sh                                   # 产物 dist/cloudflare-tunnel-2026.10.7-3-x86.fpk
+#   ./build.sh                                   # 产物 dist/cloudflare-tunnel-2026.10.7-5-x86.fpk
 #   ./build.sh /path/to/out.fpk                  # 指定产物路径
 #   GO=/path/to/go ./build.sh
 #   PNPM=/path/to/pnpm ./build.sh
@@ -27,7 +27,7 @@ WEB_DIR="$PRODUCT_DIR/web"
 
 APP_NAME="cloudflare-tunnel"
 DISPLAY_NAME="Cloudflare Tunnel"
-VERSION="2026.10.7-3"
+VERSION="2026.10.7-5"
 ARCH="x86"
 UPSTREAM_CLOUDFLARED_VERSION="2026.10.7"
 SERVER_BIN_NAME="cloudflare-tunnel-server"
@@ -134,6 +134,7 @@ say "== 2. server 交叉编译（GO=$GO）=="
 [ -d "$SERVER_DIR/cmd/$APP_NAME" ] || fatal "$SERVER_DIR/cmd/$APP_NAME 不存在（Go main 包路径）"
 
 ASSETS_DST="$SERVER_DIR/internal/assets/dist"
+rm -rf "$ASSETS_DST"
 mkdir -p "$ASSETS_DST"
 cp -a "$WEB_DIR/dist/." "$ASSETS_DST/"
 say "web/dist → server/internal/assets/dist（$(find "$ASSETS_DST" -type f | wc -l | tr -d ' ') 个文件）"
@@ -207,7 +208,10 @@ cp ui/images/icon-256.png "$APP_OUT/ui/images/icon-256.png"
 cp THIRD_PARTY_NOTICES.md "$APP_OUT/THIRD_PARTY_NOTICES.md"
 cp third_party/cloudflared/LICENSE "$APP_OUT/third_party/cloudflared/LICENSE"
 cp THIRD_PARTY_NOTICES.md "$APP_OUT/third_party/cloudflared/THIRD_PARTY_NOTICES.md"
-say "app/ = server + bin/cloudflared + ui/{config,images} + third_party/cloudflared/{LICENSE,THIRD_PARTY_NOTICES.md}"
+mkdir -p "$APP_OUT/third_party/fonts"
+cp "$WEB_DIR/public/fonts/LICENSE-MapleMono.txt" "$APP_OUT/third_party/fonts/LICENSE-MapleMono.txt"
+cp "$WEB_DIR/public/fonts/NOTICE-MiSans.txt" "$APP_OUT/third_party/fonts/NOTICE-MiSans.txt"
+say "app/ = server + bin/cloudflared + ui/{config,images} + third_party/{cloudflared,fonts}"
 
 # ---------------------------------------------------------------- 5. fnpack
 say "== 5. fnpack build =="
@@ -292,6 +296,8 @@ if has "$INNER_LIST" '(^|/)ui/config$'; then ok "app.tgz 内含 ui/config"; else
 if has "$INNER_LIST" '(^|/)ui/images/icon-64\.png$'; then ok "app.tgz 内含 ui/images/icon-64.png"; else bad "app.tgz 缺 icon-64.png"; fi
 if has "$INNER_LIST" '(^|/)ui/images/icon-256\.png$'; then ok "app.tgz 内含 ui/images/icon-256.png"; else bad "app.tgz 缺 icon-256.png"; fi
 if has "$INNER_LIST" '(^|/)third_party/cloudflared/LICENSE$'; then ok "app.tgz 内含 third_party/cloudflared/LICENSE"; else bad "app.tgz 缺 cloudflared LICENSE"; fi
+if has "$INNER_LIST" '(^|/)third_party/fonts/LICENSE-MapleMono\.txt$'; then ok "app.tgz 内含 Maple Mono OFL 全文"; else bad "app.tgz 缺 Maple Mono OFL 全文"; fi
+if has "$INNER_LIST" '(^|/)third_party/fonts/NOTICE-MiSans\.txt$'; then ok "app.tgz 内含 MiSans 声明"; else bad "app.tgz 缺 MiSans 声明"; fi
 
 if has "$INNER_LIST" '\.bak|~$|\.orig$'; then bad "app.tgz 内含备份文件"; else ok "app.tgz 无备份污染"; fi
 

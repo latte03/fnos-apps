@@ -18,7 +18,6 @@ import { dismissToast, toasts } from '../lib/toast'
           <button class="toast-close" type="button" aria-label="关闭提示" @click="dismissToast(item.id)">
             <Icon name="x" />
           </button>
-          <span class="toast-bar" aria-hidden="true"></span>
         </div>
       </TransitionGroup>
     </div>

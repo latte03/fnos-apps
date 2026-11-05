@@ -1,6 +1,18 @@
+<script lang="ts">
+import type { Route as RouteModel } from '../types'
+
+interface CachedRoutes {
+  routes: RouteModel[]
+  catchAllService: string
+  rawIngressCount: number
+}
+
+const routesCache = new Map<string, CachedRoutes>()
+</script>
+
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Icon from '../components/Icon.vue'
 import PageHead from '../components/PageHead.vue'
 import RouteRow from '../components/RouteRow.vue'
@@ -61,6 +73,31 @@ const dirty = computed(
     JSON.stringify(draft.value.map(wireRoute)) !== JSON.stringify(saved.value.map(wireRoute)) ||
     catchAll.value !== savedCatchAll.value,
 )
+
+const syncState = computed<'saved' | 'saving' | 'dirty' | 'error'>(() => {
+  if (saveError.value) return 'error'
+  if (saving.value) return 'saving'
+  if (dirty.value) return 'dirty'
+  return 'saved'
+})
+
+const syncLabel = computed(() => {
+  switch (syncState.value) {
+    case 'saving':
+      return '保存中'
+    case 'dirty':
+      return '待保存'
+    case 'error':
+      return '保存失败'
+    default:
+      return '已保存'
+  }
+})
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+let saveQueued = false
+let revision = 0
+let pendingToast = ''
 
 const tunnelNeedsRun = computed(() => Boolean(selectedTunnel.value) && liveTunnelId.value !== selectedId.value)
 
@@ -131,8 +168,37 @@ function resetDnsState() {
   dnsError.value = ''
 }
 
-async function loadRoutes(tunnelId = selectedId.value) {
+function routesCacheKey(tunnelId: string) {
+  return `${app.settings?.accountId || ''}:${tunnelId}`
+}
+
+function applyRoutesData(tunnelId: string, data: CachedRoutes) {
+  saved.value = cloneRoutes(data.routes)
+  draft.value = cloneRoutes(data.routes)
+  catchAll.value = data.catchAllService || 'http_status:404'
+  savedCatchAll.value = catchAll.value
+  rawIngressCount.value = data.rawIngressCount
+  loaded.value = true
+  routesCache.set(routesCacheKey(tunnelId), {
+    routes: cloneRoutes(data.routes),
+    catchAllService: catchAll.value,
+    rawIngressCount: data.rawIngressCount,
+  })
+  if (tunnelId === liveTunnelId.value) setRouteCount(data.routes.length)
+}
+
+async function loadRoutes(tunnelId = selectedId.value, force = false) {
   if (!tunnelId) return
+  if (!force) {
+    const cached = routesCache.get(routesCacheKey(tunnelId))
+    if (cached) {
+      selectedId.value = tunnelId
+      loading.value = false
+      loadError.value = ''
+      applyRoutesData(tunnelId, cached)
+      return
+    }
+  }
   loading.value = true
   loadError.value = ''
   saveError.value = ''
@@ -140,13 +206,11 @@ async function loadRoutes(tunnelId = selectedId.value) {
     const result = await api.routes(tunnelId)
     if (selectedId.value !== tunnelId) return
     selectedId.value = tunnelId
-    saved.value = cloneRoutes(result.routes)
-    draft.value = cloneRoutes(result.routes)
-    catchAll.value = result.catchAllService || 'http_status:404'
-    savedCatchAll.value = result.catchAllService || 'http_status:404'
-    rawIngressCount.value = result.rawIngressCount
-    loaded.value = true
-    if (tunnelId === liveTunnelId.value) setRouteCount(result.routes.length)
+    applyRoutesData(tunnelId, {
+      routes: result.routes,
+      catchAllService: result.catchAllService,
+      rawIngressCount: result.rawIngressCount,
+    })
   } catch (err) {
     loadError.value = noteError(err)
   } finally {
@@ -157,14 +221,16 @@ async function loadRoutes(tunnelId = selectedId.value) {
 async function selectTunnel(id: string) {
   pickerOpen.value = false
   if (id === selectedId.value) return
+  if (saving.value) {
+    toast('正在保存，请稍候再切换隧道', 'error')
+    return
+  }
   if (dirty.value) {
-    const result = await confirmDialog({
-      title: '切换隧道？',
-      message: '当前隧道有未保存的路由修改，切换后会丢失这些草稿。',
-      confirmText: '放弃并切换',
-      tone: 'danger',
-    })
-    if (!result.ok) return
+    await flushSave()
+    if (dirty.value) {
+      toast('当前隧道仍有未保存的修改，请先重试保存', 'error')
+      return
+    }
   }
   resetDnsState()
   selectedId.value = id
@@ -210,8 +276,12 @@ function applyDrawer(payload: { hostname: string; path: string; service: string;
       delete dns[current.originalHost]
       if (flag !== undefined) autoDnsFlags[payload.hostname] = flag
     }
+    if (payload.autoDns) autoDnsFlags[payload.hostname] = true
   }
   drawer.value = null
+  revision += 1
+  pendingToast = current.mode === 'add' ? '路由已添加' : '路由已更新'
+  void flushSave()
 }
 
 async function removeRoute(item: Route) {
@@ -225,7 +295,9 @@ async function removeRoute(item: Route) {
   draft.value = draft.value.filter((entry) => entry.hostname !== item.hostname)
   delete autoDnsFlags[item.hostname]
   delete dns[item.hostname]
-  toast('路由已删除 · 保存后生效', 'success')
+  revision += 1
+  pendingToast = '路由已删除'
+  void flushSave()
 }
 
 function moveRoute(item: Route, delta: number) {
@@ -236,6 +308,8 @@ function moveRoute(item: Route, delta: number) {
   const [moved] = list.splice(from, 1)
   list.splice(to, 0, moved)
   draft.value = list
+  revision += 1
+  scheduleSave()
 }
 
 function onDragStart(event: DragEvent, item: Route) {
@@ -265,6 +339,8 @@ function onDrop(event: DragEvent, item: Route) {
   const [moved] = list.splice(from, 1)
   list.splice(to, 0, moved)
   draft.value = list
+  revision += 1
+  scheduleSave()
 }
 
 function onDragEnd() {
@@ -296,14 +372,14 @@ async function createDnsFor(item: Route) {
   }
 }
 
-async function runPendingDns(hosts: string[]) {
+async function runPendingDns(tunnelId: string, hosts: string[]) {
   for (const host of hosts) {
     const item = draft.value.find((entry) => entry.hostname === host)
     if (!item) continue
     dnsBusy.value = host
     dns[host] = 'pending'
     try {
-      const result = await api.createDns(selectedId.value, host)
+      const result = await api.createDns(tunnelId, host)
       dns[host] = result.action
       dnsDetail[host] = result
     } catch (err) {
@@ -319,54 +395,103 @@ async function runPendingDns(hosts: string[]) {
   else if (created) toast(`${created} 条 CNAME 已就绪`, 'success')
 }
 
-async function save() {
-  if (!dirty.value || saving.value || !selectedId.value) return
-  saving.value = true
-  saveError.value = ''
-  const pendingHosts = draft.value
+function scheduleSave() {
+  if (saveTimer) clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    saveTimer = null
+    void flushSave()
+  }, 450)
+}
+
+async function flushSave() {
+  if (!selectedId.value) return
+  if (saving.value) {
+    saveQueued = true
+    return
+  }
+  if (!dirty.value) {
+    saveError.value = ''
+    return
+  }
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+    saveTimer = null
+  }
+  const tunnelId = selectedId.value
+  const requestRevision = revision
+  const message = pendingToast
+  pendingToast = ''
+  const payloadRoutes = draft.value.map(wireRoute)
+  const payloadCatchAll = catchAll.value.trim() || 'http_status:404'
+  const pendingHosts = payloadRoutes
     .filter((item) => autoDnsFlags[item.hostname])
     .map((item) => item.hostname)
     .filter((host) => !['created', 'updated', 'unchanged'].includes(dns[host] || ''))
 
+  saving.value = true
+  saveError.value = ''
   try {
-    const result = await api.saveRoutes(selectedId.value, {
-      routes: draft.value.map(wireRoute),
-      catchAllService: catchAll.value.trim() || 'http_status:404',
+    const result = await api.saveRoutes(tunnelId, {
+      routes: payloadRoutes,
+      catchAllService: payloadCatchAll,
     })
+    if (selectedId.value !== tunnelId) return
     saved.value = cloneRoutes(result.routes)
-    draft.value = cloneRoutes(result.routes)
-    catchAll.value = result.catchAllService || catchAll.value
-    savedCatchAll.value = result.catchAllService || catchAll.value
+    savedCatchAll.value = result.catchAllService || payloadCatchAll
     rawIngressCount.value = result.rawIngressCount
-    for (const key of Object.keys(autoDnsFlags)) delete autoDnsFlags[key]
-    if (selectedId.value === liveTunnelId.value) setRouteCount(result.routes.length)
-    toast('路由已保存', 'success')
-    saving.value = false
-    if (pendingHosts.length) void runPendingDns(pendingHosts)
+    if (revision === requestRevision) {
+      draft.value = cloneRoutes(result.routes)
+      catchAll.value = result.catchAllService || payloadCatchAll
+    }
+    routesCache.set(routesCacheKey(tunnelId), {
+      routes: cloneRoutes(result.routes),
+      catchAllService: result.catchAllService || payloadCatchAll,
+      rawIngressCount: result.rawIngressCount,
+    })
+    if (tunnelId === liveTunnelId.value) setRouteCount(result.routes.length)
+    for (const host of pendingHosts) delete autoDnsFlags[host]
+    if (message) toast(message, 'success')
+    if (pendingHosts.length) void runPendingDns(tunnelId, pendingHosts)
   } catch (err) {
     saveError.value = apiErrorMessage(err)
     toast(saveError.value, 'error')
+  } finally {
     saving.value = false
+    if (saveQueued) {
+      saveQueued = false
+      void flushSave()
+    } else if (dirty.value && !saveError.value) {
+      void flushSave()
+    }
   }
 }
 
-function discard() {
-  draft.value = cloneRoutes(saved.value)
-  catchAll.value = savedCatchAll.value
-  for (const key of Object.keys(autoDnsFlags)) delete autoDnsFlags[key]
+function retrySave() {
   saveError.value = ''
+  void flushSave()
+}
+
+function onCatchAllInput() {
+  revision += 1
+  scheduleSave()
 }
 
 function copyYaml() {
   void copyText(yamlText.value, 'config.yml 已复制')
 }
 
-function onRefresh() {
-  if (dirty.value) {
-    toast('有未保存的更改，保存或放弃后再刷新', 'error')
+async function onRefresh() {
+  if (!selectedId.value || saving.value) {
+    if (saving.value) toast('正在保存，请稍候再刷新', 'error')
     return
   }
-  void loadRoutes()
+  if (dirty.value) {
+    await flushSave()
+    if (dirty.value) return
+  }
+  resetDnsState()
+  await loadRoutes(selectedId.value, true)
+  if (!loadError.value) toast('路由数据已刷新', 'success')
 }
 
 function onDocumentClick(event: MouseEvent) {
@@ -385,17 +510,6 @@ function onBeforeUnload(event: BeforeUnloadEvent) {
   event.preventDefault()
   event.returnValue = ''
 }
-
-onBeforeRouteLeave(async () => {
-  if (!dirty.value) return true
-  const result = await confirmDialog({
-    title: '放弃未保存的更改？',
-    message: '当前隧道的路由表有未保存的修改，离开后草稿会丢失。',
-    confirmText: '放弃更改',
-    tone: 'danger',
-  })
-  return result.ok
-})
 
 let stopTunnelWatch: (() => void) | null = null
 
@@ -429,6 +543,11 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+    saveTimer = null
+    if (dirty.value && !saving.value) void flushSave()
+  }
   document.removeEventListener('click', onDocumentClick)
   document.removeEventListener('keydown', onKeydown)
   window.removeEventListener('beforeunload', onBeforeUnload)
@@ -444,15 +563,19 @@ onBeforeUnmount(() => {
     sub="一个域名对应一个内网服务。规则按顺序匹配，首条命中后不再继续；最后一条为兜底。"
   >
     <template #actions>
+      <span class="save-state" :class="`is-${syncState}`" role="status">
+        <span v-if="syncState === 'saving'" class="spinner" aria-hidden="true"></span>
+        <Icon v-else :name="syncState === 'error' ? 'alert' : 'check'" />
+        {{ syncLabel }}
+      </span>
+      <button class="btn ghost" type="button" :disabled="loading || saving" @click="onRefresh">
+        <span v-if="loading" class="spinner" aria-hidden="true"></span>
+        <Icon v-else name="refresh" />
+        {{ loading ? '刷新中' : '刷新' }}
+      </button>
       <button class="btn ghost" type="button" @click="openAdd">
         <Icon name="plus" />
         添加路由
-      </button>
-      <span class="save-state" :class="{ 'is-dirty': dirty }">{{ dirty ? '有未保存的更改' : '已保存' }}</span>
-      <button v-if="dirty" class="btn ghost" type="button" :disabled="saving" @click="discard">放弃更改</button>
-      <button class="btn primary" type="button" :disabled="!dirty || saving" @click="save">
-        <span v-if="saving" class="spinner" aria-hidden="true"></span>
-        {{ saving ? '保存中' : '保存更改' }}
       </button>
     </template>
   </PageHead>
@@ -469,8 +592,11 @@ onBeforeUnmount(() => {
       <button class="btn small ghost" type="button" @click="onRefresh">重试</button>
     </template>
   </NoticeBar>
-  <NoticeBar v-if="saveError" tone="danger" icon="alert" title="保存失败">
+  <NoticeBar v-if="saveError" tone="danger" icon="alert" title="自动保存失败">
     {{ saveError }}
+    <template #action>
+      <button class="btn small ghost" type="button" @click="retrySave">重试</button>
+    </template>
   </NoticeBar>
 
   <section v-if="!app.tunnels.length && !app.booting" class="card reveal" style="--i: 1">
@@ -491,6 +617,7 @@ onBeforeUnmount(() => {
           aria-haspopup="listbox"
           :aria-expanded="pickerOpen"
           aria-label="选择隧道"
+          :title="selectedTunnel?.name || '选择隧道'"
           @click="pickerOpen = !pickerOpen"
         >
           <span class="status-dot" :class="stateMeta.dot" aria-hidden="true"></span>
@@ -537,7 +664,7 @@ onBeforeUnmount(() => {
 
     <div class="routes-layout">
       <section class="card route-list reveal" style="--i: 2">
-        <div v-if="loading" class="route-skeleton">
+        <div v-if="loading && !loaded" class="route-skeleton">
           <div v-for="index in 4" :key="index" class="route-row">
             <SkeletonBlock height="12px" width="16px" />
             <SkeletonBlock height="16px" width="16px" />
@@ -592,6 +719,7 @@ onBeforeUnmount(() => {
               aria-label="兜底服务"
               spellcheck="false"
               placeholder="http_status:404"
+              @input="onCatchAllInput"
             />
             <StatusPill label="固定" kind="neutral" />
             <div class="route-actions"></div>

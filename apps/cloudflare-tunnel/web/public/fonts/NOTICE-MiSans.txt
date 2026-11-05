@@ -1,0 +1,21 @@
+MiSans
+======
+
+Copyright (c) Xiaomi Inc.
+
+This application embeds the MiSans font (Regular, Semibold, Bold) for UI
+rendering. The font files are included unmodified.
+
+Source:  https://hyperos.mi.com/font/zh/
+License: MiSans 字体知识产权许可协议 (MiSans Font Intellectual Property
+         License Agreement), free for personal and commercial use.
+
+The full license is published by Xiaomi at the source page above. Key terms:
+- Software embedding is permitted; this application states that it uses
+  MiSans.
+- The font files may not be adapted or redeveloped on their own, and may not
+  be rented, sublicensed, lent, redistributed or sold as font software.
+- The font may not be used for trademark registration.
+
+The fonts are bundled only as part of this application and are not sold or
+distributed separately.

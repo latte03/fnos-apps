@@ -1,5 +1,5 @@
 appname                    = cloudflare-tunnel
-version                    = 2026.10.7-3
+version                    = 2026.10.7-5
 display_name               = Cloudflare Tunnel
 desc                       = Go 后端 + 内嵌 SPA + cloudflared 进程守护，用 Cloudflare API 管理 token 型隧道，服务端口 18960
 platform                   = x86
@@ -15,4 +15,4 @@ service_port               = 18960
 desktop_uidir              = ui
 desktop_applaunchname      = cloudflare-tunnel.panel
 disable_authorization_path = false
-changelog                  = 2026.10.7-3：整体字号 +2px（最小 12px）。2026.10.7-2：修复账户级 API Token 验证失败（改用账户级 tokens/verify）。2026.10.7-1：首个版本。Cloudflare Tunnel 隧道管理（账号/隧道/ingress/自动 CNAME）、cloudflared 进程守护与实时日志、API Key；内置 cloudflared 2026.10.7（Apache-2.0）。
+changelog                  = 2026.10.7-5：内置 Maple Mono NF CN（子集）与 MiSans 字体；概览右栏等宽；日志自定义滚动条；设置页底部固定保存条；Toast 移到右上角并去掉进度条。2026.10.7-4：路由页缓存、自动保存与手动刷新；暗色主按钮白字；长隧道名截断。2026.10.7-3：整体字号 +2px（最小 12px）。2026.10.7-2：修复账户级 API Token 验证失败（改用账户级 tokens/verify）。2026.10.7-1：首个版本。Cloudflare Tunnel 隧道管理（账号/隧道/ingress/自动 CNAME）、cloudflared 进程守护与实时日志、API Key；内置 cloudflared 2026.10.7（Apache-2.0）。

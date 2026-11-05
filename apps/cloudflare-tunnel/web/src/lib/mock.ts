@@ -28,7 +28,7 @@ import type {
   TunnelList,
 } from '../types'
 
-const VERSION = '2026.10.7-3'
+const VERSION = '2026.10.7-5'
 const CLOUDFLARED = '2026.10.7'
 const STARTED_AT = new Date(Date.now() - 1000 * 60 * 60 * 27).toISOString()
 

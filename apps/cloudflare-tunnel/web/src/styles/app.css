@@ -123,8 +123,8 @@
 /* The reveal animation gives every card its own stacking context; without an
    explicit layer the picker menu renders behind the route card below it. */
 .toolbar { position: relative; z-index: 30; }
-.picker { position: relative; }
-.picker-trigger { height: 36px; }
+.picker { position: relative; min-width: 0; }
+.picker-trigger { height: 36px; max-width: min(320px, 100%); }
 .picker-trigger .account-copy small { font-family: var(--font-mono); }
 .picker-menu {
   position: absolute;
@@ -360,6 +360,7 @@ textarea::placeholder,
 }
 
 @media (max-width: 620px) {
+  .settings-save-dock { left: 16px; right: 16px; bottom: 14px; justify-content: space-between; }
   .page-head h1 { font-size: 29px; }
   .hero h2 { flex-wrap: wrap; }
   .hero-actions { gap: 6px; }

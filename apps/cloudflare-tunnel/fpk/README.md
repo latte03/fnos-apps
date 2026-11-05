@@ -5,7 +5,7 @@ fnOS 原生应用打包目录（复制自 `fndepot/app-template` 并适配）。
 
 - appname：`cloudflare-tunnel`
 - 显示名：`Cloudflare Tunnel`
-- 版本：`2026.10.7-3`（上游 `cloudflare/cloudflared` 2026.10.7 + 本地版本号 3）
+- 版本：`2026.10.7-5`（上游 `cloudflare/cloudflared` 2026.10.7 + 本地版本号 5）
 - 服务端口：`18960`（`manifest service_port`；运行时以 `$TRIM_SERVICE_PORT` 为准）
 - 平台：`x86`（= amd64，`GOARCH=amd64`）
 
@@ -47,7 +47,7 @@ fpk/
 在 `fpk/` 下：
 
 ```bash
-# 默认产物：<app>/dist/cloudflare-tunnel-2026.10.7-3-x86.fpk
+# 默认产物：<app>/dist/cloudflare-tunnel-2026.10.7-5-x86.fpk
 GO=/path/to/go ./build.sh
 
 # 指定产物路径 / 本地 cloudflared / 其它 pnpm
@@ -125,7 +125,7 @@ share 根目录解析：`/var/apps/cloudflare-tunnel/shares/cloudflare-tunnel`�
 ## 打包后自检（人工复核用）
 
 ```bash
-tar tzf dist/cloudflare-tunnel-2026.10.7-3-x86.fpk | head -30
-tar xzOf dist/cloudflare-tunnel-2026.10.7-3-x86.fpk app.tgz | tar tzf - | grep -E 'cloudflare-tunnel-server|bin/cloudflared|ui/'
-tar xOf dist/cloudflare-tunnel-2026.10.7-3-x86.fpk manifest | grep -E '^(appname|version|maintainer|distributor|service_port)'
+tar tzf dist/cloudflare-tunnel-2026.10.7-5-x86.fpk | head -30
+tar xzOf dist/cloudflare-tunnel-2026.10.7-5-x86.fpk app.tgz | tar tzf - | grep -E 'cloudflare-tunnel-server|bin/cloudflared|ui/'
+tar xOf dist/cloudflare-tunnel-2026.10.7-5-x86.fpk manifest | grep -E '^(appname|version|maintainer|distributor|service_port)'
 ```

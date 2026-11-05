@@ -25,11 +25,22 @@
 - **Vue 3** — MIT License，<https://github.com/vuejs/core>
 - **Vite** — MIT License，<https://github.com/vitejs/vite>（仅构建期）
 - **@fontsource/manrope** — Manrope 字体，SIL Open Font License 1.1，<https://github.com/sharanda/manrope>
-- **@fontsource/ibm-plex-mono** — IBM Plex Mono 字体，SIL Open Font License 1.1，<https://github.com/IBM/plex>
 
-完整依赖树与各组件许可证随 `web/pnpm-lock.yaml` 固定。发布前如需在包内附带上述许可证全文，
-请从各依赖的 `node_modules/<pkg>/LICENSE` 复制到本文件同级目录。字体为离线内置（NAS 无外网），
-不分发修改版字体。
+### 3.1 内置字体（离线打包，NAS 无外网）
+
+- **Maple Mono NF CN** — 等宽字体，SIL Open Font License 1.1，
+  来源 <https://github.com/subframe7536/maple-font>。
+  本应用只取 UI 所需的 Latin/符号子集并转为 WOFF2，属于 OFL 允许的修改；
+  因 OFL 保留字体名 “Maple Mono”，子集在 CSS 中改名为 **CT Mono**。许可证全文：
+  `app/third_party/fonts/LICENSE-MapleMono.txt`（仓库内 `web/public/fonts/LICENSE-MapleMono.txt`）。
+- **MiSans** — 中文字体，小米 MiSans 字体知识产权许可协议，
+  来源 <https://hyperos.mi.com/font/zh/>。按许可要求以**未修改的原始 TTF**
+  （Regular/Semibold/Bold）随应用嵌入，仅用于本应用界面，不单独售卖或再分发；
+  不用于商标注册。声明全文：
+  `app/third_party/fonts/NOTICE-MiSans.txt`（仓库内 `web/public/fonts/NOTICE-MiSans.txt`）。
+
+完整依赖树与各组件许可证随 `web/pnpm-lock.yaml` 固定。其余 MIT 依赖如需在包内附带
+许可证全文，请从各依赖的 `node_modules/<pkg>/LICENSE` 复制到本文件同级目录。
 
 ## 4. Go 标准库
 

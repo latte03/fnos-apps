@@ -311,7 +311,7 @@ onBeforeUnmount(() => {
     </section>
   </div>
 
-  <div v-else class="settings-wrap">
+  <div v-else class="settings-wrap" :class="{ 'has-save-dock': dirty || saving || saveError }">
     <section class="card settings-card reveal" style="--i: 1">
       <div class="card-head">
         <div>
@@ -607,6 +607,20 @@ onBeforeUnmount(() => {
       </div>
     </section>
   </div>
+
+  <Teleport to="body">
+    <Transition name="save-dock">
+      <div v-if="dirty || saving || saveError" class="settings-save-dock" role="status" aria-live="polite">
+        <span class="save-state" :class="saveError ? 'is-error' : 'is-dirty'">
+          {{ saveError ? '保存失败' : '有未保存的更改' }}
+        </span>
+        <button class="btn primary" type="button" :disabled="saving" @click="save">
+          <span v-if="saving" class="spinner" aria-hidden="true"></span>
+          {{ saving ? '保存中' : saveError ? '重试保存' : '保存更改' }}
+        </button>
+      </div>
+    </Transition>
+  </Teleport>
 
   <TokenHelpModal v-if="tokenHelpOpen" @close="tokenHelpOpen = false" />
 </template>
