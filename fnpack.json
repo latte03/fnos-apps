@@ -133,6 +133,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "1.0.0": {
+          "changelog": "## v1.0.0 — 2026-11-08（1.0 测试版）\n\n### 🗂 TVBox 式二级线路海报墙\n\n- 媒体库一级海报墙改为影片文件夹，点击进入后按资源站聚合展示可播放线路海报，标题前缀标注来源，交互更接近 TVBox/VOD。\n- 同一资源站的解析线与 m3u8 直放线聚合为一张卡片，优先使用 m3u8/直放线，避免同一来源重复占海报位；播放页内仍保留完整技术线路菜单。\n- 电影线路卡为整片 VOD，点击即播；电视剧、动漫、综艺等多集内容保持 TV 模型与真实季/集数，进入后可正常选集。\n- 固定线路卡使用独立 guid，点击哪条来源就按哪条播放，不做自动竞速，也不被历史最优线路覆盖；原影片的详情、收藏、历史身份保持不变。\n\n### 🎬 多集选集与精准续播\n\n- Season/Episode 全链路携带来源线路身份，电视剧、动漫、综艺选集均锁定同一资源站，不会在选集时串线。\n- 同时支持 Web 的 POST 与 App 的 GET `stream/list`，修复部分客户端选集容器为空、无法选集的问题。\n- 播放进度、收藏、已看统一按基础影片/集身份记录，复合线路 guid 自动归一化，不会按资源站拆分历史；复播精准回到上次未看完的集与播放进度。\n- 已绑定影片二级线路墙毫秒级返回；冷片首次进入在单次请求内完成绑定，不先返回空目录，避免误判为无资源。\n\n### 🧹 策略收敛与稳定性\n\n- 撤并试验性的按需竞速、短窗竞速、可见海报测速绑定与预载动画，播放底层回归并保持 v0.2.42 轻量按需秒播基线；相关配置键升级时自动清理。\n- 保留快源优先、全源严格同名同年兜底的榜单绑定，以及错误同名包含拦截、线程隔离、管理台与家庭多用户等既有能力。\n- 191 项自动化测试通过，公开构建剥离检查通过；本版本为 1.0 测试版，欢迎反馈二级目录、选集与续播问题。",
+          "updated_at": "2026-11-08T03:53:29Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v1.0.0/fnmedia-ext-1.0.0-full.fpk",
+              "sha256": "a95c34330d2ad978d6e635e61617f50f0def05441f5303883804d1a2dfd472a5",
+              "size": 132450254
+            }
+          }
+        },
         "0.2.73": {
           "changelog": "## v0.2.73 — 2026-11-06\n\n### 🎛 管理台与播放体验完善\n\n- 管理页按总览、片源管理、设置重新分组并统一视觉样式；资源站接口地址、源 ID 等长信息默认折叠，点击即可展开。\n- 新增媒体库显示开关与排序，支持隐藏单个虚拟库、调整顺序，以及选择虚拟库相对本地媒体库的位置。\n- 恢复按飞牛账号授权可见媒体库与在线搜索，支持默认权限策略；各账号的在线播放记录与续播进度相互隔离。\n- 关于页加入支付宝赞赏模块。\n- 播放回归轻量按需模式，移除全量后台预热和海报/清单磁盘缓存；补线增加并发限制，减少高负载下海报与媒体库变慢。\n- 校验聚合线路与当前线路高亮：线路菜单按资源站去重，当前播放线的回显码率与菜单高亮保持一致。\n- 162 项自动化测试及公开构建剥离检查通过，管理页脚本、前后端接口与账号/排序/赞赏模块实测通过。",
           "updated_at": "2026-11-06T08:11:28Z",
@@ -374,7 +386,7 @@
     },
     "deskicons": {
       "display_name": "NAS 管家",
-      "desc": "集桌面图标、计划任务、远程连接、存储管理与网络唤醒于一体的 NAS 管理工具。支持管家菜单独立桌面入口、SSH/VNC 多标签连接、文件传输、常用命令与 AI 助手，以及空间分析、重复文件检查、批量改名和设备批量唤醒。适配 PC 与移动端。",
+      "desc": "集桌面图标、计划任务、远程连接、存储管理与网络唤醒于一体的 NAS 管理工具。支持管家菜单独立桌面入口、SSH/VNC/RDP/ADB 多标签连接、文件传输、常用命令与 AI 助手，以及空间分析、重复文件检查、批量改名和设备批量唤醒。适配 PC 与移动端。",
       "platform": [
         "x86",
         "arm"
@@ -384,11 +396,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.9/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.9/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.9/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.9/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.3.9/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -401,6 +413,23 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.2": {
+          "changelog": "**新增 Android 远程连接**\n\n现在你可以在远程连接中接入支持 ADB 通信的手机、平板、电视盒子等 Android 设备，以极其优雅的方式进行远程控制。\n\n支持无线调试与 NAS USB 连接，集投屏操控、终端、文件管理、应用安装和设备信息于一体。自由切换投屏清晰度、拖动全屏工具栏，让远程操作更加顺手。\n\n**优化体验与修复问题**\n\n进一步统一桌面端与移动端的界面样式，完善文件传输、任务列表及异常状态处理，修复了一些已知问题。",
+          "updated_at": "2026-11-09T10:21:59Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.2/NAS.-0.4.2-x86_64.fpk",
+              "sha256": "1a4baa40709e82e186b709f4488edae0c46a45e92a2780eb95fe7478f9c0b5c8",
+              "size": 101773921
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.2/NAS.-0.4.2-arm64.fpk",
+              "sha256": "2409633f43bba38fd4803a3c95edbe0500e42a2e596f4449c97c558d0c3c3160",
+              "size": 96188407
+            }
+          }
+        },
         "0.3.9": {
           "changelog": "修复RDP功能，优化了检查更新",
           "updated_at": "2026-11-04T06:57:59Z",
