@@ -48,8 +48,8 @@
       }
     },
     "fnos-quark": {
-      "display_name": "飞牛夸克下载器",
-      "desc": "将夸克网盘文件直接下载到本地目录。<br><br>注：通过下载器内置更新功能升级后，飞牛 NAS 应用中心的版本号不会同步更新。实际运行版本请以下载器「设置」菜单底部显示的版本号为准。",
+      "display_name": "夸克下载器",
+      "desc": "<p>夸克下载器，一款面向 NAS 的夸克网盘第三方下载与同步工具。通过网页管理网盘文件与下载任务，将云端文件保存到 NAS。</p><p>　• <strong>网盘下载：</strong>支持扫码或 Cookie 登录，浏览网盘文件，下载文件及文件夹，可保留原有目录结构。<br>　• <strong>任务管理：</strong>支持暂停、恢复、失败重试与断点续传，关闭网页后下载仍会继续。<br>　• <strong>定时同步：</strong>支持增量同步，可按固定间隔、每天、每周或自定义 Cron 计划，将网盘新增文件下载到本地。<br>　• <strong>下载设置：</strong>灵活设置保存目录、下载并发、速度限制、下载时段和磁盘预留空间。<br>　• <strong>多端访问：</strong>适配电脑与手机，提供实时下载进度、速度曲线，以及浅色、深色和跟随系统的外观。</p><br><p>注：通过下载器内置更新功能升级后，飞牛 NAS 应用中心的版本号不会同步更新。实际运行版本请以下载器「设置」菜单底部显示的版本号为准。</p>",
       "platform": [
         "x86",
         "arm"
@@ -76,6 +76,23 @@
       "is_docker": false,
       "service_port": "37429",
       "releases": {
+        "0.8.1": {
+          "changelog": "## 应用名称\n\n- 统一应用显示名称，增加 GitHub 角标，原有数据目录和升级入口保持不变。\n\n## 访问令牌\n\n- 访问令牌验证窗口新增「复制路径」和操作指引。初次使用或在其他浏览器打开时，可按提示找到 NAS 上的令牌文件并完成验证。\n\n## 目录授权\n\n- 新版 FPK 支持飞牛管理员在「选择下载目录」中点击「授权其他目录」。此功能需要 fnOS 1.2.0401 及以上，在飞牛手机 App 内使用还需 App 1.34.0 及以上。\n- 从 v0.8.0 内置升级后，可展开「如何授权」，按提示在应用中心添加文件夹。若要直接在下载器内授权，卸载时保留应用文件，再安装对应架构的新版普通版 FPK。\n\n## 升级说明\n\n> [!WARNING]\n> 由于代码的历史遗留问题，v0.7.6 及之前的旧版本无法正常的更新至最新版本，请移步到飞牛应用中心卸载并手动安装最新版本。\n> 卸载时保留“应用文件/fnos-quark”和其他下载目录；重新安装后会迁移保留下来的配置和任务。\n\n- 升级保留配置、任务、同步关系、通知和下载文件。从 v0.8.0 原地升级可继续使用原访问令牌，已手动暂停的任务会保持暂停。\n- v0.7.7 及以后版本可使用“设置 → 检查更新”；没有该入口、更新失败或升级后无法启动时，卸载时保留应用文件，再安装新版 FPK。\n- 升级前备份重要文件；不兼容的断点会重新下载，手动重装不能自动恢复旧程序。fnOS 1.1.8 和 ARM64 的实机安装仍待验证。",
+          "updated_at": "2026-11-12T09:18:45Z",
+          "os_min_version": "1.1.8",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/ElyDemiurge/fnOS-quark/releases/download/v0.8.1/fnos-quark-0.8.1-x86_64.fpk",
+              "sha256": "f6fc8199c504835c2fcac2346c73a480b656409bb3b33905fdff88b79731a321",
+              "size": 10173109
+            },
+            "arm": {
+              "download_url": "https://github.com/ElyDemiurge/fnOS-quark/releases/download/v0.8.1/fnos-quark-0.8.1-arm64.fpk",
+              "sha256": "0bd43f5a90580b5bccbbfffbcd1c12e7810f0f656d19c1ad51502d745cfa941d",
+              "size": 9447137
+            }
+          }
+        },
         "0.8.0": {
           "changelog": "> [!WARNING]\n> 由于代码的历史遗留问题，v0.7.6 及之前的旧版本无法正常的更新至最新版本，请移步到飞牛应用中心卸载并手动安装最新版本。\n> 卸载时保留“应用文件/fnos-quark”和其他下载目录；重新安装后会迁移保留下来的配置和任务。\n\n## 外观与打赏\n\n- 新增跟随系统、浅色与深色外观。\n- 新增“支持作者”入口，可通过微信或支付宝自愿打赏。\n\n## 同步计划\n\n- 每个同步任务可独立设置固定间隔、每天、每周或 Cron 计划，每周可多选星期。\n- 添加同步任务时依次选择网盘文件夹、保存位置和执行计划；首次同步可立即开始或等待计划时间。\n- 支持预览接下来 3 次检查时间，可选择错过计划后补查一次。\n\n## 鸣谢\n\n- 新增鸣谢浮窗。\n\n## 日志与诊断\n\n- 诊断包新增外观、支持作者偏好及同步计划与检查状态。\n\n## 下载与显示修复\n\n- 修复 exFAT 等文件系统上断点保存与下载完成失败的问题。\n- 修复刷新页面后下载任务和目标硬盘占用延迟显示或短暂误报读取失败的问题。\n\n## 升级说明\n\n- 升级时保留配置、任务、同步关系、通知和下载文件。\n- v0.7.7 及以后版本可通过“设置 → 检查更新”升级；没有该入口、更新失败或升级后无法启动时，卸载时保留“应用文件/fnos-quark”，再安装新版 FPK。\n- 升级前备份重要文件；不兼容的断点会重新下载，手动重装不能自动恢复旧程序。",
           "updated_at": "2026-11-02T10:20:34Z",
@@ -133,6 +150,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "1.1.0": {
+          "changelog": "# fnmedia-ext v1.1.0 正式版\n\n飞牛影视在线扩展 1.1 正式版完成两项主线收口：**管理页按功能域重新归纳**，以及**只保留一个无安卓安装包**。现有 CMS / T4 / DRPY、媒体库、搜索、播放、续播、网盘与小雅能力继续保留。\n\n## 管理页：同类功能集中在同一页面\n\n- **概览**：当前能力、设备识别、统计与实时播放诊断。\n- **媒体库**：热门、海量、T4、小雅分类库、显示排序与子账号权限。\n- **资源站**：源列表、质量权重、测速/探活与健康画像。\n- **订阅与 JS 源**：TVBox 订阅导入、DRPY/Node 状态、脚本重试、启停与探活。\n- **网盘与小雅**：网盘登录、PanSou、小雅 JVM 连接和目录浏览。\n- **播放设置**：线路选择、坏线切换、混合直连与去广告。\n- **搜索设置**：在线结果排序、注入条数与噪音词。\n- **网络与代理**：订阅抓取、资源站取源、版本更新三类代理集中管理，配置互不覆盖。\n- **数据与维护**：在线条目与各类运行缓存管理。\n- **关于与更新**：产品信息、统一版本更新、打赏与声明。\n\n移动端使用“概览 / 媒体库 / 片源 / 播放 / 更多”，所有页面均可达。\n\n## 无安卓源管理闭环\n\n- Guard / 普通 csp_ 仅识别报告，**不导入、不启用、不下载 jar**。\n- 历史 Guard/csp 在配置加载、保存和搜索读取三层停用；旧安卓导入、启停、jar、探活和侧车启动 API 返回 410。\n- 旧 titles/history 不再触发安卓 runner/docker；空“加固影视”库和后台常驻任务不再启动。\n- 既有网盘分享链接继续转存原画；PanSou、小雅、DRPY、T4、CMS 与播放主链不受影响。\n- DRPY 注册表与资源站即时同步，导入、启停、删除、脚本重试无需重启。\n- 订阅结果补齐 T4 统计，CMS/T4 新增与 DRPY 当前就绪分开显示。\n- 测速按运行时分派，不再把 DRPY、小雅或历史 Guard/csp 错送给 DDUO/WASM 探针。\n\n同时修复：小雅分类库状态读取、更新代理保存假成功、订阅代理状态不同步、资源列表操作后不重绘等问题。\n\n## 统一安装包与升级兼容\n\n- 正式资产：`fnmedia-ext-1.1.0.fpk`。\n- `fnmedia-ext-1.1.0-full.fpk` 仅为旧 full 客户端自动升级的**同字节兼容别名**，不是第二种版本。\n- 不再生成或上传 `-lite` / `-public` 新安装包。\n- Moo 与新客户端统一使用裸名包；旧 full 不会降级到 lite/public。\n- 安装包不含 Guard/csp 资产、APK、个人源、账号凭证或运行态配置。\n\n播放、选线、清单、分片与续播继续保持 v0.2.42 秒播基线。",
+          "updated_at": "2026-11-12T09:47:56Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v1.1.0/fnmedia-ext-1.1.0-full.fpk",
+              "sha256": "00620929e7d2eab65b4fe0919f42919dff0304f40ea26f3f791c4656d9d54136",
+              "size": 25091553
+            }
+          }
+        },
         "1.0.0": {
           "changelog": "## v1.0.0 — 2026-11-08（1.0 测试版）\n\n### 🗂 TVBox 式二级线路海报墙\n\n- 媒体库一级海报墙改为影片文件夹，点击进入后按资源站聚合展示可播放线路海报，标题前缀标注来源，交互更接近 TVBox/VOD。\n- 同一资源站的解析线与 m3u8 直放线聚合为一张卡片，优先使用 m3u8/直放线，避免同一来源重复占海报位；播放页内仍保留完整技术线路菜单。\n- 电影线路卡为整片 VOD，点击即播；电视剧、动漫、综艺等多集内容保持 TV 模型与真实季/集数，进入后可正常选集。\n- 固定线路卡使用独立 guid，点击哪条来源就按哪条播放，不做自动竞速，也不被历史最优线路覆盖；原影片的详情、收藏、历史身份保持不变。\n\n### 🎬 多集选集与精准续播\n\n- Season/Episode 全链路携带来源线路身份，电视剧、动漫、综艺选集均锁定同一资源站，不会在选集时串线。\n- 同时支持 Web 的 POST 与 App 的 GET `stream/list`，修复部分客户端选集容器为空、无法选集的问题。\n- 播放进度、收藏、已看统一按基础影片/集身份记录，复合线路 guid 自动归一化，不会按资源站拆分历史；复播精准回到上次未看完的集与播放进度。\n- 已绑定影片二级线路墙毫秒级返回；冷片首次进入在单次请求内完成绑定，不先返回空目录，避免误判为无资源。\n\n### 🧹 策略收敛与稳定性\n\n- 撤并试验性的按需竞速、短窗竞速、可见海报测速绑定与预载动画，播放底层回归并保持 v0.2.42 轻量按需秒播基线；相关配置键升级时自动清理。\n- 保留快源优先、全源严格同名同年兜底的榜单绑定，以及错误同名包含拦截、线程隔离、管理台与家庭多用户等既有能力。\n- 191 项自动化测试通过，公开构建剥离检查通过；本版本为 1.0 测试版，欢迎反馈二级目录、选集与续播问题。",
           "updated_at": "2026-11-08T03:53:29Z",
@@ -396,11 +425,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.2/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -408,11 +437,28 @@
       "maintainer_url": "https://github.com/kaf931/fnos-manager",
       "distributor": "latte03",
       "distributor_url": "https://github.com/latte03",
-      "run_as": "root",
+      "run_as": "package",
       "install_type": "",
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.3": {
+          "changelog": "**重要：自此版本开始，NAS 管家接入飞牛官方文件权限登记。旧版本用户务必手动安装新版完整 FPK：优先覆盖安装；若系统不支持覆盖安装，请卸载并选择“保留数据”，然后安装新版。仅使用应用内更新，无法补齐旧安装缺少的权限登记。**\n\n完成登记后，普通用户可以授权应用访问自己的文件和文件夹，应用按授权范围及用户实际权限进行操作。受影响的功能包括：\n\n- **空间分析**：目录浏览、文件扫描和空间统计。\n- **重复文件**：重复内容扫描，以及副本删除、移动。\n- **文件整理**：目录浏览、批量改名和撤销改名。\n\nSSH/SFTP 文件管理使用远端账号权限，不受此次文件权限登记调整影响。\n\n# NAS 管家 0.4.3 更新日志\n\n发布日期：2026 年 11 月 11 日。\n\n## 权限与安全\n\n主服务改为普通应用账号运行，不再保留常驻 root 主服务。文件访问接入飞牛官方目录授权与权限检查，系统管理操作通过飞牛官方授权完成。\n\n## 通知中心\n\n原设置界面的 Webhook 通知迁移至主菜单，统一为“通知中心”。内置通用 Webhook、企业微信、钉钉、飞书、邮箱、Server酱、Bark 和应用内通知模板，可分别配置、启停和测试发送。\n\n支持查看投递记录，应用内消息支持未读提醒、标记已读及批量删除。\n\n## 提醒事项\n\n新增提醒事项功能，可填写记事内容、设置提醒时间，并选择通知模板进行推送。\n\n支持以下重复方式：\n\n- 单次提醒。\n- 每天、每周、每月。\n- 法定工作日、法定节假日（中国大陆）。\n- 自定义每周多日重复。\n\n提醒时间为必填项，至少选择一个已启用且配置完整的通知模板才能保存。事项可暂停、恢复、标记完成或批量删除。\n\n## 其他优化与修复\n\n- 更新生产依赖安全补丁，修复其他已知问题。\n\n## 安装包\n请访问123云盘或GitHub发布页下载0.4.3版本\nhttps://1828828809.share.123pan.cn/123pan/i5N7jv-SMkwH?utm_source=chatgpt.com",
+          "updated_at": "2026-11-11T11:52:28Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.3/NAS.-0.4.3-x86_64.fpk",
+              "sha256": "86cc965804ef79665ee5e0a504461aa1106aeef6e23936035710fe3033164cc4",
+              "size": 102433558
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.3/NAS.-0.4.3-arm64.fpk",
+              "sha256": "17fc90537b041dcb63d23abcc33d95a53fc418df557d2b04ab148a5c20a80a4d",
+              "size": 96824201
+            }
+          }
+        },
         "0.4.2": {
           "changelog": "**新增 Android 远程连接**\n\n现在你可以在远程连接中接入支持 ADB 通信的手机、平板、电视盒子等 Android 设备，以极其优雅的方式进行远程控制。\n\n支持无线调试与 NAS USB 连接，集投屏操控、终端、文件管理、应用安装和设备信息于一体。自由切换投屏清晰度、拖动全屏工具栏，让远程操作更加顺手。\n\n**优化体验与修复问题**\n\n进一步统一桌面端与移动端的界面样式，完善文件传输、任务列表及异常状态处理，修复了一些已知问题。",
           "updated_at": "2026-11-09T10:21:59Z",
