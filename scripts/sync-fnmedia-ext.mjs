@@ -8,6 +8,10 @@
  * 历史 Release 的校验值也会自动核对：上游在原 tag 重传资产时刷新
  * size/sha256；上游删除的版本会从清单移除，保证 download_url 始终可用。
  *
+ * 上游 beta tag（如 v1.2.0-beta.16）的 FPK manifest 只写核心版本
+ * （1.2.0），后缀仅存在于 tag 与资产名中；manifest 校验按核心版本
+ * 比较，Release 键仍保留完整 tag 版本以区分各个 beta。
+ *
  * 用法：
  *   node scripts/sync-fnmedia-ext.mjs
  *   node scripts/sync-fnmedia-ext.mjs --slim
@@ -209,6 +213,10 @@ function semverParts(version) {
   return { nums, pre };
 }
 
+function coreVersion(version) {
+  return semverParts(version).nums.join('.');
+}
+
 function compareSemver(a, b) {
   const left = semverParts(a);
   const right = semverParts(b);
@@ -286,9 +294,11 @@ async function main() {
     if (manifest.appname !== APP_KEY) {
       throw new Error(`manifest appname 为 ${manifest.appname}，预期 ${APP_KEY}`);
     }
-    if (manifest.version !== version) {
+    // beta tag 的 manifest 只写核心版本（如 tag v1.2.0-beta.16 对应 manifest 1.2.0），
+    // 按核心版本比较；核心版本不一致仍视为包与 Release 不匹配
+    if (coreVersion(manifest.version) !== coreVersion(version)) {
       throw new Error(
-        `manifest version 为 ${manifest.version}，Release 为 ${version}`,
+        `manifest version 为 ${manifest.version}，Release 为 ${version}，核心版本不一致`,
       );
     }
     if (manifest.platform && manifest.platform !== 'all') {
