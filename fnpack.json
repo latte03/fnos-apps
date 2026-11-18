@@ -425,11 +425,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/0.4.3/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -443,70 +443,19 @@
       "service_port": "",
       "releases": {
         "0.4.3": {
-          "changelog": "**重要：自此版本开始，NAS 管家接入飞牛官方文件权限登记。旧版本用户务必手动安装新版完整 FPK：优先覆盖安装；若系统不支持覆盖安装，请卸载并选择“保留数据”，然后安装新版。仅使用应用内更新，无法补齐旧安装缺少的权限登记。**\n\n完成登记后，普通用户可以授权应用访问自己的文件和文件夹，应用按授权范围及用户实际权限进行操作。受影响的功能包括：\n\n- **空间分析**：目录浏览、文件扫描和空间统计。\n- **重复文件**：重复内容扫描，以及副本删除、移动。\n- **文件整理**：目录浏览、批量改名和撤销改名。\n\nSSH/SFTP 文件管理使用远端账号权限，不受此次文件权限登记调整影响。\n\n# NAS 管家 0.4.3 更新日志\n\n发布日期：2026 年 11 月 11 日。\n\n## 权限与安全\n\n主服务改为普通应用账号运行，不再保留常驻 root 主服务。文件访问接入飞牛官方目录授权与权限检查，系统管理操作通过飞牛官方授权完成。\n\n## 通知中心\n\n原设置界面的 Webhook 通知迁移至主菜单，统一为“通知中心”。内置通用 Webhook、企业微信、钉钉、飞书、邮箱、Server酱、Bark 和应用内通知模板，可分别配置、启停和测试发送。\n\n支持查看投递记录，应用内消息支持未读提醒、标记已读及批量删除。\n\n## 提醒事项\n\n新增提醒事项功能，可填写记事内容、设置提醒时间，并选择通知模板进行推送。\n\n支持以下重复方式：\n\n- 单次提醒。\n- 每天、每周、每月。\n- 法定工作日、法定节假日（中国大陆）。\n- 自定义每周多日重复。\n\n提醒时间为必填项，至少选择一个已启用且配置完整的通知模板才能保存。事项可暂停、恢复、标记完成或批量删除。\n\n## 其他优化与修复\n\n- 更新生产依赖安全补丁，修复其他已知问题。\n\n## 安装包\n请访问123云盘或GitHub发布页下载0.4.3版本\nhttps://1828828809.share.123pan.cn/123pan/i5N7jv-SMkwH?utm_source=chatgpt.com",
-          "updated_at": "2026-11-11T11:52:28Z",
+          "changelog": "重要：自此版本开始，NAS管家接入飞牛官方文件权限登记。旧版本用户必须手动安装新版本完整FPK：优先覆盖安装；若系统不支持覆盖安装，请卸载并选择“保留数据”，然后安装新版本。仅使用应用内更新，无法补齐旧安装缺少的权限登记。\n\n完成注册后，普通用户可以授权应用访问自己的文件和文件夹，应用按授权范围及用户实际权限进行操作。旅行的功能包括：\n\n空间分析：目录浏览、文件扫描和空间统计。\n重复文件：重复内容扫描，以及副本删除、移动。\n文件整理：目录浏览、批量改名和撤销改名。\nSSH/SFTP文件管理使用外部账号权限，不受此次事件文件权限登记调整影响。\n\nNAS 管家 0.4.3更新日志\n发布日期：2026年11月11日。\n\n权限与安全\n主服务改为普通应用账号运行，不再保留常驻root主服务。文件访问接入飞牛官方目录授权和权限检查，系统管理操作通过飞牛官方授权完成。\n\n通知中心\n原设置界面的Webhook通知迁移至主菜单，统一为“通知中心”。内置通用Webhook、企业微信、钉钉、飞书、邮箱、服务器酱、Bark和应用内通知模板，可分别配置、启停和测试发送。\n\n支持查看投递记录，应用内消息支持未读提醒、标记已读及批量删除。\n\n提醒事项\n新增提醒事项功能，可填写记事内容、设置提醒时间，并选择通知模板进行主动。\n\n支持以下重复方式：\n\n单次提醒。\n每天、每周、每月。\n法定工作日、法定节假日（中国大陆）。\n习惯每周多日重复。\n提醒时间为必填项，至少选择一个已启用且配置完整的通知模板才能保存。可暂停、恢复、标记完成或批量删除的事项。\n\n其他优化与修复\n更新生产依赖安全补丁，修复其他已知问题。",
+          "updated_at": "2026-11-16T03:31:27Z",
           "os_min_version": "1.2.0800",
           "packages": {
             "x86": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.3/NAS.-0.4.3-x86_64.fpk",
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.3/NAS.-0.4.3-x86_64.fpk",
               "sha256": "86cc965804ef79665ee5e0a504461aa1106aeef6e23936035710fe3033164cc4",
               "size": 102433558
             },
             "arm": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.3/NAS.-0.4.3-arm64.fpk",
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.3/NAS.-0.4.3-arm64.fpk",
               "sha256": "17fc90537b041dcb63d23abcc33d95a53fc418df557d2b04ab148a5c20a80a4d",
               "size": 96824201
-            }
-          }
-        },
-        "0.4.2": {
-          "changelog": "**新增 Android 远程连接**\n\n现在你可以在远程连接中接入支持 ADB 通信的手机、平板、电视盒子等 Android 设备，以极其优雅的方式进行远程控制。\n\n支持无线调试与 NAS USB 连接，集投屏操控、终端、文件管理、应用安装和设备信息于一体。自由切换投屏清晰度、拖动全屏工具栏，让远程操作更加顺手。\n\n**优化体验与修复问题**\n\n进一步统一桌面端与移动端的界面样式，完善文件传输、任务列表及异常状态处理，修复了一些已知问题。",
-          "updated_at": "2026-11-09T10:21:59Z",
-          "os_min_version": "1.2.0800",
-          "packages": {
-            "x86": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.2/NAS.-0.4.2-x86_64.fpk",
-              "sha256": "1a4baa40709e82e186b709f4488edae0c46a45e92a2780eb95fe7478f9c0b5c8",
-              "size": 101773921
-            },
-            "arm": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.4.2/NAS.-0.4.2-arm64.fpk",
-              "sha256": "2409633f43bba38fd4803a3c95edbe0500e42a2e596f4449c97c558d0c3c3160",
-              "size": 96188407
-            }
-          }
-        },
-        "0.3.9": {
-          "changelog": "修复RDP功能，优化了检查更新",
-          "updated_at": "2026-11-04T06:57:59Z",
-          "os_min_version": "1.2.0800",
-          "packages": {
-            "x86": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.9/NAS.-0.3.9-x86_64.fpk",
-              "sha256": "5338a59df7d887a0b9054a19f17818c04b14ac69bfded51fe42dcf1cc9799ca1",
-              "size": 94281905
-            },
-            "arm": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.9/NAS.-0.3.9-arm64.fpk",
-              "sha256": "fc74be10d62b44916e38e93be2723c1f31feb5e176216e7b808cbb78a3dd8424",
-              "size": 89239564
-            }
-          }
-        },
-        "0.3.6": {
-          "changelog": "NAS 管家 0.3.6\n\n## 新增\n\n- 支持从 GitHub Release 检查新版本、查看 更新说明，并匹配 x86_64 / ARM64 安装包。\n- 支持应用内下载、校验和安装更新，展示下载百分比及安装状态；安装失败时恢复原运行文件与数据库。\n- 新增手动 / 自动更新设置，自动更新在远程会话和后台任务空闲时执行。\n- 更新下载支持断点续传，遇到连接超时、网络中断或服务器临时错误时自动重试，最多 5 次。\n- 应用清理新增“更新缓存”，支持查看占用、更新日志和批量清理；进行中的任务受保护。\n- 新增默认、靛蓝、鸢尾紫、深青强调色，以及终端条纹 / 纯色背景选项。\n\n## 优化与修复\n\n- 弹窗尺寸和滚动布局统一。\n- 修复弹窗首次打开时关闭按钮出现蓝色焦点框的问题，保留键盘操作焦点。\n- 桌面左下角设置旁显示新版本入口及实际下载百分比，移动端底部导航保持原布局。\n- 优化了一些UI表现。\n\n## 说明\n- 飞牛的开发者文档不支持修改标题栏的样式，所以如果整体切换主题，非常违和，可能后续飞牛官方支持配置后会更新不同的主题表现方式。",
-          "updated_at": "2026-11-01T03:58:55Z",
-          "os_min_version": "1.2.0800",
-          "packages": {
-            "x86": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.6/NAS.-0.3.6-x86_64.fpk",
-              "sha256": "85eeb134273ca2155b99732bd3fc337e9093f5777d92e8f96851caf41ccfa89a",
-              "size": 94257884
-            },
-            "arm": {
-              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/0.3.6/NAS.-0.3.6-arm64.fpk",
-              "sha256": "a76d639580cdba048e3a60035167fffb0b960c6ec8147fdf7ddc52fa1b2edcda",
-              "size": 89237973
             }
           }
         }
