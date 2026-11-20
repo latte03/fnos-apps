@@ -49,7 +49,7 @@
     },
     "fnos-quark": {
       "display_name": "夸克下载器",
-      "desc": "<p>夸克下载器，一款面向 NAS 的夸克网盘第三方下载与同步工具。通过网页管理网盘文件与下载任务，将云端文件保存到 NAS。</p><p>　• <strong>网盘下载：</strong>支持扫码或 Cookie 登录，浏览网盘文件，下载文件及文件夹，可保留原有目录结构。<br>　• <strong>任务管理：</strong>支持暂停、恢复、失败重试与断点续传，关闭网页后下载仍会继续。<br>　• <strong>定时同步：</strong>支持增量同步，可按固定间隔、每天、每周或自定义 Cron 计划，将网盘新增文件下载到本地。<br>　• <strong>下载设置：</strong>灵活设置保存目录、下载并发、速度限制、下载时段和磁盘预留空间。<br>　• <strong>多端访问：</strong>适配电脑与手机，提供实时下载进度、速度曲线，以及浅色、深色和跟随系统的外观。</p><br><p>注：通过下载器内置更新功能升级后，飞牛 NAS 应用中心的版本号不会同步更新。实际运行版本请以下载器「设置」菜单底部显示的版本号为准。</p>",
+      "desc": "\"\"\"夸克下载器是第三方夸克网盘工具，可将网盘文件下载或同步到 NAS。",
       "platform": [
         "x86",
         "arm"
@@ -76,6 +76,23 @@
       "is_docker": false,
       "service_port": "37429",
       "releases": {
+        "0.8.2": {
+          "changelog": "## 新增功能\n\n- 新增网盘搜索，支持按名称、通配符或正则表达式查找文件和文件夹，可按目录范围和文件类型筛选。\n- 下载内容移走、改名或删除后，「下载任务」右上角的标签会标明是单个文件、整个文件夹，还是其中部分或所有文件缺失。展开文件夹可查看明细，状态变化可在日志中查看，检查结果可随诊断包导出。\n- 在网页或飞牛 App 点打赏提醒上的「×」，同一下载器的其他页面也会收起本次提醒。\n\n## 改进\n\n- 选择下载位置时先列出已授权的目录。在 fnOS 1.2.0401 及以上完整安装本版 FPK 后，远程挂载可按飞牛返回的名称显示。\n- 文件夹列表读取失败时，任务会显示出错的目录，诊断包会记录失败步骤和相对路径。\n- 改进网盘原名和追加下载后缀后超限的提示。单文件因后缀超限时，任务提示、日志和诊断包分两行给出改名要求和完整文件名。诊断包保留后缀及具体字节数。\n- 手机上查看下载任务时，较长的下载路径可利用整行宽度折行。页面底部的作者与「项目主页」同排时用竖线分隔，空间不足时链接单独居中换行。\n- 服务器限流或暂时不可用时，自动重试会参考服务器给出的等待时间。日志显示原因、下次重试时间和次数，可按完整任务 ID 查找。\n\n## 问题修复\n\n- 修复同名子文件夹导致下载中断的问题。同名目录的内容会合并，遇到文件路径冲突时保留现有文件。\n- 修复文件接收完成后将保存失败误报为网络异常并自动重试的问题。日志和诊断包会记录失败原因及目标位置，手动重试可复用完整断点。\n- 修复断点文件暂时无法读取时可能丢弃已下载内容的问题。恢复磁盘读写权限后，可从保留的有效断点继续。\n- 修复应用重启后文件夹未按时重试失败文件的问题，单独暂停的文件会保持暂停。\n- 修复部分手机因反复提示访问令牌设置读取失败而无法进入下载器的问题。\n- 修复手机横屏浏览网盘时长短文件名字号不一致的问题。\n\n## 升级说明\n\n> [!WARNING]\n> v0.7.6 及之前的普通版请使用应用中心手动重装。\n\n- 从 v0.6.0、v0.6.2、v0.7.2–v0.7.12、v0.8.0 或 v0.8.1 升级，保留配置、任务、同步关系、通知和下载文件。手动暂停的任务仍保持暂停。\n- 新版发布后，v0.7.7 及以后版本可在「设置 → 检查更新」升级。没有该入口、更新失败或升级后无法启动时，卸载时保留“应用文件/fnos-quark”和其他下载目录，再安装新版 FPK。请选择与原普通版相同的 NAS 架构。\n- 升级前备份重要文件。不兼容的断点会重新下载，手动重装不能自动恢复旧程序。",
+          "updated_at": "2026-11-20T09:39:13Z",
+          "os_min_version": "1.1.8",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/ElyDemiurge/fnOS-quark/releases/download/v0.8.2/fnos-quark-0.8.2-x86_64.fpk",
+              "sha256": "df5ea3390145d9987c608b4d64787cd5a5da0634355c394b2a429865d0dbee9a",
+              "size": 10443424
+            },
+            "arm": {
+              "download_url": "https://github.com/ElyDemiurge/fnOS-quark/releases/download/v0.8.2/fnos-quark-0.8.2-arm64.fpk",
+              "sha256": "391582dc80c020938233be08f90c5b84617e44538358b8f944a070542d528f72",
+              "size": 9727507
+            }
+          }
+        },
         "0.8.1": {
           "changelog": "## 应用名称\n\n- 统一应用显示名称，增加 GitHub 角标，原有数据目录和升级入口保持不变。\n\n## 访问令牌\n\n- 访问令牌验证窗口新增「复制路径」和操作指引。初次使用或在其他浏览器打开时，可按提示找到 NAS 上的令牌文件并完成验证。\n\n## 目录授权\n\n- 新版 FPK 支持飞牛管理员在「选择下载目录」中点击「授权其他目录」。此功能需要 fnOS 1.2.0401 及以上，在飞牛手机 App 内使用还需 App 1.34.0 及以上。\n- 从 v0.8.0 内置升级后，可展开「如何授权」，按提示在应用中心添加文件夹。若要直接在下载器内授权，卸载时保留应用文件，再安装对应架构的新版普通版 FPK。\n\n## 升级说明\n\n> [!WARNING]\n> 由于代码的历史遗留问题，v0.7.6 及之前的旧版本无法正常的更新至最新版本，请移步到飞牛应用中心卸载并手动安装最新版本。\n> 卸载时保留“应用文件/fnos-quark”和其他下载目录；重新安装后会迁移保留下来的配置和任务。\n\n- 升级保留配置、任务、同步关系、通知和下载文件。从 v0.8.0 原地升级可继续使用原访问令牌，已手动暂停的任务会保持暂停。\n- v0.7.7 及以后版本可使用“设置 → 检查更新”；没有该入口、更新失败或升级后无法启动时，卸载时保留应用文件，再安装新版 FPK。\n- 升级前备份重要文件；不兼容的断点会重新下载，手动重装不能自动恢复旧程序。",
           "updated_at": "2026-11-12T09:18:45Z",
@@ -150,6 +167,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "1.2.0": {
+          "changelog": "## v1.2.0 — 2026-11-20（正式版）\n\n> 正式版：经 **Moo 商店** 与插件内置更新器正式通道推送。1.2.0 系列首个正式版，汇总该系列 beta 的改进。\n\n### 🍎 修复新版 iOS（1.13）在线播放无法起播\n\n- 新版 iOS 的 fncache 本地缓存对聚合资源站的 HLS「取到清单后不再请求分片」，表现为一直加载、无法起播（官方原版同样存在，见 issue #98）。经真机抓包、并与安卓端 fncache 实现逐段对比确认：这是新版 iOS HLS 通路的兼容问题，不是片源或清单格式问题——清单与分片本身均合法可达。\n- iOS 在线 HLS 现改走**渐进式 MKV 转封装**（ffmpeg `-c copy`，不重编码、不降画质）：以本地渐进文件交给播放器，绕开 fncache 的 HLS 分片缓存。真机验证可正常起播、显示总时长、拖动进度。\n- **起播提速**：进入影片详情页即在后台预热当前线路的转封装任务，点播放时大多已就绪，明显缩短首次加载等待；转封装单飞去重、按最近取流保活，不重复起进程。\n- **时间轴修复**：转封装过程中即向 MKV 写入时长（Duration），总时长/进度条/拖动正常，不再「没有时间轴、进度不动」。\n- 网页端 / TV 端保持原 HLS 播放与选线不变；固定线路、默认线、竞速与秒播策略均未改变。\n\n### 🧪 验证\n\n- 全量 **616 项测试**、v0.2.42 播放基线、公开构建与 Python/Shell 语法检查通过；真机（iOS 1.13）起播、总时长、拖动复验通过。",
+          "updated_at": "2026-11-20T06:42:29Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v1.2.0/fnmedia-ext-1.2.0-full.fpk",
+              "sha256": "91a5d56c5c52426afbd8e500fdf1a19a679892bacc6b159494b1916f59f18e97",
+              "size": 26037431
+            }
+          }
+        },
         "1.2.0-beta.16": {
           "changelog": "# 飞牛影视在线扩展 v1.2.0-beta.16\n\n## Guard 可选引擎慢速下载热修\n- 针对 GitHub 大文件单连接过慢及 TLS/连接超时，引擎 ZIP 改为 16 路有界 Range 分块下载，每块 256KB。\n- 分块独立校验范围和有限重试；`.parts` 记录已完成分块，网络失败后支持续传，不再反复从头下载 46MB 引擎。\n- GitHub 直连优先，超时后回退到 `gh-proxy.com` 的同一 GitHub 内容镜像；最终仍按原 GitHub 清单 SHA-256 校验，镜像不能替换内容。\n- SHA-256、恶意 ZIP、路径穿越等错误仍立即删除，失败升级保留原有可用引擎。\n- 核心 FPK 继续不包含 Guard 引擎；管理页仍从 `guard-engine-v1` Release 按需下载。\n\n普通播放、固定线路、默认线及竞速策略不变。Moo 稳定渠道保持 v1.1.0，本版本仅通过 Beta 通道分发。",
           "updated_at": "2026-11-16T14:38:58Z",
@@ -448,11 +477,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.3/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -465,6 +494,23 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.4": {
+          "changelog": "# NAS 管家 v0.4.4 更新日志\n\n## 新增仪表盘\n\n在仪表盘查看天气和日程。支持添加日历、便签、常用工具、桌面陪伴等小组件，可拖动调整位置和大小。日历可直接添加提醒事项。\n\n## 优化与修复\n\n- 优化移动端提醒事项的日期和时间选择。\n- 改善深色模式下消息菜单与页面背景的区分。\n- 统一批量管理按钮图标，修复了一些已知问题。",
+          "updated_at": "2026-11-19T12:31:45Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.4/NAS.-0.4.4-x86_64.fpk",
+              "sha256": "743486968e188a379568c925e81580f09fd636c53eed27d83c843c38c6517e20",
+              "size": 102665920
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.4/NAS.-0.4.4-arm64.fpk",
+              "sha256": "16b565421fc2a514b294baac53f619f4a0407bcebd52e282c35f2912ac3a5b9d",
+              "size": 97078806
+            }
+          }
+        },
         "0.4.3": {
           "changelog": "重要：自此版本开始，NAS管家接入飞牛官方文件权限登记。旧版本用户必须手动安装新版本完整FPK：优先覆盖安装；若系统不支持覆盖安装，请卸载并选择“保留数据”，然后安装新版本。仅使用应用内更新，无法补齐旧安装缺少的权限登记。\n\n完成注册后，普通用户可以授权应用访问自己的文件和文件夹，应用按授权范围及用户实际权限进行操作。旅行的功能包括：\n\n空间分析：目录浏览、文件扫描和空间统计。\n重复文件：重复内容扫描，以及副本删除、移动。\n文件整理：目录浏览、批量改名和撤销改名。\nSSH/SFTP文件管理使用外部账号权限，不受此次事件文件权限登记调整影响。\n\nNAS 管家 0.4.3更新日志\n发布日期：2026年11月11日。\n\n权限与安全\n主服务改为普通应用账号运行，不再保留常驻root主服务。文件访问接入飞牛官方目录授权和权限检查，系统管理操作通过飞牛官方授权完成。\n\n通知中心\n原设置界面的Webhook通知迁移至主菜单，统一为“通知中心”。内置通用Webhook、企业微信、钉钉、飞书、邮箱、服务器酱、Bark和应用内通知模板，可分别配置、启停和测试发送。\n\n支持查看投递记录，应用内消息支持未读提醒、标记已读及批量删除。\n\n提醒事项\n新增提醒事项功能，可填写记事内容、设置提醒时间，并选择通知模板进行主动。\n\n支持以下重复方式：\n\n单次提醒。\n每天、每周、每月。\n法定工作日、法定节假日（中国大陆）。\n习惯每周多日重复。\n提醒时间为必填项，至少选择一个已启用且配置完整的通知模板才能保存。可暂停、恢复、标记完成或批量删除的事项。\n\n其他优化与修复\n更新生产依赖安全补丁，修复其他已知问题。",
           "updated_at": "2026-11-16T03:31:27Z",
