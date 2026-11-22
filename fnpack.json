@@ -489,11 +489,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.4/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -506,6 +506,23 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.5": {
+          "changelog": "优化了一些界面UI",
+          "updated_at": "2026-11-21T15:43:47Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.5/NAS.-0.4.5-x86_64.fpk",
+              "sha256": "d0914d40be4d68b09d8793a304583e47964eea79c9a5f73769252f5b9f2bbd08",
+              "size": 102664281
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.5/NAS.-0.4.5-arm64.fpk",
+              "sha256": "3a9c4444e2953d05536f1264f45c799a1c06ceaa47465584de388acca5811ebd",
+              "size": 97080558
+            }
+          }
+        },
         "0.4.4": {
           "changelog": "# NAS 管家 v0.4.4 更新日志\n\n## 新增仪表盘\n\n在仪表盘查看天气和日程。支持添加日历、便签、常用工具、桌面陪伴等小组件，可拖动调整位置和大小。日历可直接添加提醒事项。\n\n## 优化与修复\n\n- 优化移动端提醒事项的日期和时间选择。\n- 改善深色模式下消息菜单与页面背景的区分。\n- 统一批量管理按钮图标，修复了一些已知问题。",
           "updated_at": "2026-11-19T12:31:45Z",
