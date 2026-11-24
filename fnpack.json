@@ -167,6 +167,18 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "1.4.1-beta.1": {
+          "changelog": "修复bug",
+          "updated_at": "2026-11-24T07:37:00Z",
+          "os_min_version": "1.2.0",
+          "packages": {
+            "all": {
+              "download_url": "https://github.com/yujian0815/fnmedia-ext/releases/download/v1.4.1-beta.1/fnmedia-ext-1.4.1-beta.1-full.fpk",
+              "sha256": "09818e901bc5a94e7bcb5baf1e412b87bb2bf70155dfa2b18279899ffe093254",
+              "size": 26101217
+            }
+          }
+        },
         "1.4.0": {
           "changelog": "## 插件接管开关\n\n- 管理页概览新增「插件接管」开关。二次确认后真正停止并禁用扩展服务，自动恢复飞牛官方影视 socket，不再只是隐藏扩展内容。\n- 关闭后管理页随之退出，可在飞牛应用中心重新启动插件；启动时同时恢复开机启用。\n- 状态接口如实反映接管状态，调度失败会返回错误，不会误报关闭成功。\n\n## 关于页与内容过滤\n\n- 支付宝 / 微信赞赏码移动到关于页顶部，保留项目介绍、版本更新、TMDB 配置与免责声明。\n- 修复部分源站「伦理片」等分类被误归入普通电影库的问题。\n- 海量媒体库增加来源、路由分类、条目类型三层过滤；普通搜索、榜单绑定与热门聚合同步补齐条目级防线。\n- 常规电影、剧集、动漫、综艺分类及播放、选线、竞速策略不变；已明确授权的独立媒体库行为不变，硬红线始终生效。\n\n## 发布与验证\n\n- 后续 Beta 版本及时发布，Release 说明统一为不含更新条目的预发布提示；正式版继续使用审查后的完整说明并更新 Moo。\n- 全量 666 项测试、v0.2.42 播放基线、公开构建安检、管理页 JavaScript 与 Python/Shell 语法检查通过。",
           "updated_at": "2026-11-21T03:19:13Z",
@@ -489,11 +501,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.5/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -506,6 +518,23 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.6": {
+          "changelog": "- 仪表盘新增独立的「临时文件收件箱」。手机在局域网内扫码可多选上传，大文件自动分片，上传中断后可在当前页面重试。\n- 收件箱小组件显示最近接收的文件，扫码页可查看本浏览器的上传记录。「打开目录」可直接在飞牛文件管理中查看接收目录。\n- 存储管理新增指定目录容量预警，文件整理支持单个文件操作。\n- 计划任务新增试运行，Android 远程连接新增应用管理，可查看、启动和卸载应用。",
+          "updated_at": "2026-11-24T04:32:59Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.6/NAS.-0.4.6-x86_64.fpk",
+              "sha256": "3a0de3b9a54882786bfb49d03a2f107f3587dadb710016c2590d7914e6999ef3",
+              "size": 102729539
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.6/NAS.-0.4.6-arm64.fpk",
+              "sha256": "0bf3a2230b4ea038cbb01ee6c66a4aa111932e8ce4ad113d609cb6143cdb4e85",
+              "size": 97147054
+            }
+          }
+        },
         "0.4.5": {
           "changelog": "优化了一些界面UI",
           "updated_at": "2026-11-21T15:43:47Z",
