@@ -501,11 +501,11 @@
       ],
       "icon_url": "./apps/deskicons/icon.png",
       "preview_urls": [
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/desktop-icons.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/scheduled-tasks.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/terminal-file-manager.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/storage-management.png",
-        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.6/docs/images/readme/wake-on-lan.png"
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.7/docs/images/readme/desktop-icons.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.7/docs/images/readme/scheduled-tasks.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.7/docs/images/readme/terminal-file-manager.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.7/docs/images/readme/storage-management.png",
+        "https://raw.githubusercontent.com/kaf931/fnos-manager/v0.4.7/docs/images/readme/wake-on-lan.png"
       ],
       "readme_url": "./apps/deskicons/README.md",
       "bug_report_url": "https://github.com/kaf931/fnos-manager/issues",
@@ -518,6 +518,23 @@
       "is_docker": false,
       "service_port": "",
       "releases": {
+        "0.4.7": {
+          "changelog": "修复备份的已知问题",
+          "updated_at": "2026-11-27T02:21:43Z",
+          "os_min_version": "1.2.0800",
+          "packages": {
+            "x86": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.7/NAS.-0.4.7-x86_64.fpk",
+              "sha256": "2c4412247ebeb6368ffcacfabbabaaacfd742c08769a582d966c75505dc8283f",
+              "size": 102726915
+            },
+            "arm": {
+              "download_url": "https://github.com/kaf931/fnos-manager/releases/download/v0.4.7/NAS.-0.4.7-arm64.fpk",
+              "sha256": "81210958b9179e9c5684475166252a4966e91df36aa5146b3a19bb9c59a96cba",
+              "size": 97148214
+            }
+          }
+        },
         "0.4.6": {
           "changelog": "- 仪表盘新增独立的「临时文件收件箱」。手机在局域网内扫码可多选上传，大文件自动分片，上传中断后可在当前页面重试。\n- 收件箱小组件显示最近接收的文件，扫码页可查看本浏览器的上传记录。「打开目录」可直接在飞牛文件管理中查看接收目录。\n- 存储管理新增指定目录容量预警，文件整理支持单个文件操作。\n- 计划任务新增试运行，Android 远程连接新增应用管理，可查看、启动和卸载应用。",
           "updated_at": "2026-11-24T04:32:59Z",
